@@ -1,0 +1,56 @@
+﻿@namespace MauiBlazorBridge
+@inject IBridge Bridge
+@implements IDisposable
+
+@if(formFactor == DeviceFormFactor.Mobile)
+{
+    @Mobile
+}
+else if (formFactor == DeviceFormFactor.Tablet)
+{
+    @Tablet
+}
+else if (formFactor == DeviceFormFactor.Desktop)
+{
+    @Desktop
+}
+else
+{
+    @Default
+}
+
+
+@code {
+
+    [Parameter]
+    public RenderFragment Mobile { get; set; } = default!;
+
+    [Parameter]
+    public RenderFragment Tablet { get; set; } = default!;
+
+    [Parameter]
+    public RenderFragment Desktop { get; set; } = default!;
+
+    [Parameter]
+    public RenderFragment Default { get; set; } = default!;
+
+    BridgeContext? bridgeContext;
+
+    DeviceFormFactor formFactor = DeviceFormFactor.Unknown;
+
+    protected override void OnInitialized()
+    {
+        formFactor = Bridge.Idiom;
+        bridgeContext = BridgeContext.Create(Bridge, (x) =>
+        {
+            formFactor = x;
+            StateHasChanged();
+        });
+        base.OnInitialized();
+    }
+
+    public void Dispose()
+    {
+        bridgeContext?.Dispose();
+    }
+}

@@ -1,0 +1,31 @@
+﻿@page "/bridge"
+@inject IBridge Bridge
+@implements IDisposable
+
+<h1>Bridge</h1>
+
+<p>Framework: @Bridge.Framework.ToString()</p>
+<p>Idiom: @Bridge.Idiom.ToString()</p>
+<p>Platform: @Bridge.Platform.ToString()</p>
+
+@code 
+{
+    DeviceFormFactor formFactor = DeviceFormFactor.Unknown;
+
+    BridgeContext? bridgeContext;
+
+    protected override void OnInitialized()
+    {
+        bridgeContext = BridgeContext.Create(Bridge, (x) => {
+            formFactor = x;
+            StateHasChanged();
+        });
+        formFactor = Bridge.Idiom;
+    }
+
+    public void Dispose()
+    {
+        bridgeContext?.Dispose();
+    }
+
+}

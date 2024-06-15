@@ -1,0 +1,98 @@
+﻿@namespace MauiBlazorBridge
+@inject IBridge Bridge
+@implements IDisposable
+
+@if(idiom == DeviceFormFactor.Mobile)
+{
+    @if(Mobile is not null)
+    {
+        @Mobile
+    }
+    else if (TabletAndMobile is not null)
+    {
+        @TabletAndMobile
+    }
+    else if (DesktopAndMobile is not null)
+    {
+        @DesktopAndMobile
+    }
+}
+else if (idiom == DeviceFormFactor.Tablet)
+{
+    @if(Tablet is not null)
+    {
+        @Tablet
+    }
+    else if (TabletAndMobile is not null)
+    {
+        @TabletAndMobile
+    }
+    else if (DesktopAndTablet is not null)
+    {
+        @DesktopAndTablet
+    }
+}
+else if (idiom == DeviceFormFactor.Desktop)
+{
+    @if(Desktop is not null)
+    {
+        @Desktop
+    }
+    else if (DesktopAndTablet is not null)
+    {
+        @DesktopAndTablet
+    }
+    else if (DesktopAndMobile is not null)
+    {
+        @DesktopAndMobile
+    }
+}
+else
+{
+    @Default
+}
+
+
+@code {
+    [Parameter]
+    public RenderFragment? Desktop { get; set; }
+
+    [Parameter]
+    public RenderFragment? Tablet { get; set; }
+
+    [Parameter]
+    public RenderFragment? Mobile { get; set; }
+
+    [Parameter]
+    public RenderFragment? Default { get; set; }
+
+    [Parameter]
+    public RenderFragment? DesktopAndTablet { get; set; }
+
+    [Parameter]
+    public RenderFragment? DesktopAndMobile { get; set; }
+
+    [Parameter]
+    public RenderFragment? TabletAndMobile { get; set; }
+
+
+    private BridgeContext? _bridgeContext;
+    DeviceFormFactor idiom = DeviceFormFactor.Unknown;
+
+    protected override void OnInitialized()
+    {
+        idiom = Bridge.Idiom;
+
+        _bridgeContext = BridgeContext.Create(Bridge, (f) => {
+            idiom = f;
+            StateHasChanged();
+        });
+        base.OnInitialized();
+    }
+
+    public void Dispose()
+    {
+        _bridgeContext?.Dispose();
+    }
+
+}

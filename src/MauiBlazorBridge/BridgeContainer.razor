@@ -1,0 +1,17 @@
+@namespace MauiBlazorBridge
+@inject IBridge Bridge
+
+@ChildContent
+
+@code{
+    [Parameter]
+    public RenderFragment ChildContent { get; set; } = default!;
+
+    [Parameter]
+    public bool EnableListener { get; set; } = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await Bridge.InitializeAsync(EnableListener);
+    }
+}
