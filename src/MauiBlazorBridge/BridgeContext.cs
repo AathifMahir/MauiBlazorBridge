@@ -1,16 +1,18 @@
 ﻿using MauiBlazorBridge.Common;
-using MauiBlazorBridge.Common.Exceptions;
 
 namespace MauiBlazorBridge;
-public sealed class BridgeContext
+public sealed class BridgeContext : IAsyncDisposable
 {
     private readonly IBridge _bridge;
     public event Action<DeviceFormFactor>? OnChanged;
 
+    private readonly bool _isGlobalListener = true;
+
     private BridgeContext(IBridge bridge)
     {
         _bridge = bridge;
-        _bridge.IdiomChanged += Bridge_IdiomChanged;
+        _isGlobalListener = bridge.IsListening;
+        _bridge.FormFactorChanged += Bridge_IdiomChanged;
     }
 
     private void Bridge_IdiomChanged(object? sender, DeviceFormFactor e)
@@ -18,18 +20,23 @@ public sealed class BridgeContext
         OnChanged?.Invoke(e);
     }
 
-    public static BridgeContext Create(IBridge bridge, Action<DeviceFormFactor> onIdiomChangedCallback)
+    public async static Task<BridgeContext> CreateAsync(IBridge bridge, Action<DeviceFormFactor> onIdiomChangedCallback)
     {
-        if(!bridge.IsListening)
-            throw new MauiBlazorBridgeException("Bridge is not listening for Idiom or Device Form Factor changes. Make sure to enable listener in BridgeContainer");
-
         var bridgeContext = new BridgeContext(bridge);
+
+        if (!bridgeContext._isGlobalListener)
+            await bridge.InitializeListenerAsync();
+
         bridgeContext.OnChanged += onIdiomChangedCallback;
+        bridge.FormFactorChanged?.Invoke(bridge, bridge.FormFactor);
         return bridgeContext;
     }
 
-    public void Dispose()
+    public async ValueTask DisposeAsync()
     {
-        _bridge.IdiomChanged -= Bridge_IdiomChanged;
+        if (!_isGlobalListener)
+            await _bridge.DisposeListener();
+
+        _bridge.FormFactorChanged -= Bridge_IdiomChanged;
     }
 }
