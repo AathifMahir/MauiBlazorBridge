@@ -1,0 +1,53 @@
+﻿@inject IBridge Bridge
+
+@if(Bridge.Platform is PlatformIdentity.Android && Android is not null)
+{
+    @Android
+}
+else if (Bridge.Platform is PlatformIdentity.IOS && IOS is not null)
+{
+    @IOS
+}
+else if (Bridge.Platform is PlatformIdentity.Windows && Windows is not null)
+{
+    @Windows
+}
+else if (Bridge.Platform is PlatformIdentity.Mac && Windows is not null)
+{
+    @Mac
+}
+else if (Bridge.Platform is PlatformIdentity.Web && Web is not null)
+{
+    @Web
+}
+else if(Bridge.Platform is PlatformIdentity.Android or PlatformIdentity.IOS or PlatformIdentity.Windows or PlatformIdentity.Mac && Native is not null)
+{
+    @Native
+}
+else
+{
+    @Default
+}
+
+@code {
+    [Parameter]
+    public RenderFragment? Android { get; set; }
+
+    [Parameter]
+    public RenderFragment? IOS { get; set; }
+
+    [Parameter]
+    public RenderFragment? Windows { get; set; }
+
+    [Parameter]
+    public RenderFragment? Mac { get; set; }
+
+    [Parameter]
+    public RenderFragment? Web { get; set; }
+
+    [Parameter]
+    public RenderFragment? Native { get; set; }
+
+    [Parameter]
+    public RenderFragment? Default { get; set; }
+}
