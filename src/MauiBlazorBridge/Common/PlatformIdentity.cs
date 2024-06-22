@@ -1,9 +1,9 @@
 ﻿namespace MauiBlazorBridge.Common;
-public enum Platform
+public enum PlatformIdentity
 {
     Unknown,
     Android,
-    iOS,
+    IOS,
     Windows,
     Mac,
     Web
