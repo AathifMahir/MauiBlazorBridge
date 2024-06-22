@@ -1,0 +1,23 @@
+﻿@page "/bridge"
+@rendermode InteractiveServer
+@inject IBridge Bridge
+
+<BridgeProvider />
+
+<BridgeFormFactor>
+    <Mobile>
+        <h3>Current FormFactor : Mobile</h3>
+    </Mobile>
+    <Tablet>
+        <h3>Current FormFactor : Tablet</h3>
+    </Tablet>
+    <Desktop>
+        <h3>Current FormFactor : Desktop</h3>
+    </Desktop>
+    <Default>
+        <h3>Current FormFactor : Unknown</h3>
+    </Default>
+</BridgeFormFactor>
+
+<h3>Current Platform : @Bridge.Platform</h3>
+<h3>Current FrameWork : @Bridge.Framework</h3>
