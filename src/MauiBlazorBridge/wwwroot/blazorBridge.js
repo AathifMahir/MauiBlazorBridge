@@ -1,7 +1,7 @@
 const mobileIdiom = 'Mobile';
 const tabletIdiom = 'Tablet';
 const desktopIdiom = 'Desktop';
-let resizeListener = null;
+window.resizeListener = null;
 
 export function getFormFactor() {
     const width = window.innerWidth;
@@ -22,20 +22,20 @@ export function getFormFactor() {
         return desktopIdiom;
     }
 }
-export function registerResizeListener(assemblyName)
-{
-    if (!resizeListener) {
+export function registerResizeListener(dotnetObject){
+    if (!window.resizeListener) {
         console.log("created new listeners");
-        resizeListener = window.addEventListener('resize', async () => {
-            await DotNet.invokeMethodAsync(assemblyName, 'OnIdiomChangedCallback', getFormFactor());
-        });
+        window.resizeListener = async () => {
+            await dotnetObject.invokeMethodAsync("OnIdiomChangedCallback", getFormFactor());
+        };
+        window.addEventListener('resize', window.resizeListener);
     }
 }
 
 export function disposeListeners() {
-    if (resizeListener) {
-        console.log("deleted all the listeners");
+    if (window.resizeListener) {
+        console.log("disposed all the listeners");
         window.removeEventListener('resize', resizeListener);
-        resizeListener = null;
+        window.resizeListener = null;
     }
 }
