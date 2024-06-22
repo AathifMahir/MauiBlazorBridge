@@ -8,29 +8,34 @@ public sealed class Bridge : IBridge, IAsyncDisposable
     private readonly FrameworkIdentity _framework = GetFrameworkIdentity();
     public FrameworkIdentity Framework => _framework;
 
-    private readonly Common.Platform _platform = GetPlatform();
-    public Common.Platform Platform => _platform;
-    public DeviceFormFactor Idiom { get; set; } = DeviceFormFactor.Unknown;
-    public EventHandler<DeviceFormFactor>? IdiomChanged { get; set; }
+    private readonly Common.PlatformIdentity _platform = GetPlatform();
+    public Common.PlatformIdentity Platform => _platform;
+    public DeviceFormFactor FormFactor { get; set; } = DeviceFormFactor.Unknown;
+    public EventHandler<DeviceFormFactor>? FormFactorChanged { get; set; }
     public bool IsListening => _isListening;
 
-    private readonly Lazy<Task<IJSObjectReference>> moduleTask;
+    string _platformVersion = GetPlatformVersion();
+    public string PlatformVersion => _platformVersion;
 
-    static WeakReference<Bridge> _currentBridge = default!;
+    private readonly Lazy<Task<IJSObjectReference>> moduleTask;
 
     bool _isInitialized = false;
     bool _isListening = false;
 
+    private readonly DotNetObjectReference<Bridge> _dotNetObjectReference;
+
+    const string _blazorPath = "./_content/MauiBlazorBridge/blazorBridge.js";
+    const string _mauiPath = "./blazorBridge.js";
+
     public Bridge(IJSRuntime jsRuntime)
     {
-        if (_currentBridge != null)
-        {
-            throw new Exception("Only one instance of Bridge is allowed.");
-        }
-        _currentBridge = new WeakReference<Bridge>(this);
+#if ANDROID || IOS || WINDOWS || MACCATALYST
+        moduleTask = new(() => jsRuntime.InvokeAsync<IJSObjectReference>("import", _mauiPath).AsTask());
+#else
+        moduleTask = new(() => jsRuntime.InvokeAsync<IJSObjectReference>("import", _blazorPath).AsTask());
+#endif
 
-        moduleTask = new(() => jsRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/MauiBlazorBridge/blazorBridge.js").AsTask());
-
+        _dotNetObjectReference = DotNetObjectReference.Create(this);
     }
 
     public async Task InitializeAsync(bool isListenerEnabled = false)
@@ -43,27 +48,32 @@ public sealed class Bridge : IBridge, IAsyncDisposable
 
         if (Enum.TryParse<DeviceFormFactor>(await module.InvokeAsync<string>("getFormFactor"), out var deviceFormFactor))
         {
-            Idiom = deviceFormFactor;
+            FormFactor = deviceFormFactor;
         }
 
-        if (IdiomChanged is not null || isListenerEnabled)
+        if (FormFactorChanged is not null || isListenerEnabled)
         {
-            await module.InvokeVoidAsync("registerResizeListener", "MauiBlazorBridge");
+            await module.InvokeVoidAsync("registerResizeListener", _dotNetObjectReference);
         }
 
         _isInitialized = true;
     }
 
+    public async Task InitializeListenerAsync()
+    {
+        var module = await moduleTask.Value;
+        await module.InvokeVoidAsync("registerResizeListener", _dotNetObjectReference);
+        _isListening = true;
+    }
+
     [JSInvokable]
-    public static void OnIdiomChangedCallback(string idiom)
+    public ValueTask OnIdiomChangedCallback(string idiom)
     {
         if (Enum.TryParse<DeviceFormFactor>(idiom, out var deviceFormFactor))
         {
-            if (_currentBridge.TryGetTarget(out var bridge))
-            {
-                bridge.OnIdiomChangedJsCallback(deviceFormFactor);
-            }
+            OnIdiomChangedJsCallback(deviceFormFactor);
         }
+        return ValueTask.CompletedTask;
     }
 
     private void OnIdiomChangedJsCallback(DeviceFormFactor deviceFormFactor)
@@ -73,7 +83,7 @@ public sealed class Bridge : IBridge, IAsyncDisposable
             throw new MauiBlazorBridgeException("Bridge is not initialized.");
         };
 
-        IdiomChanged?.Invoke(this, deviceFormFactor);
+        FormFactorChanged?.Invoke(this, deviceFormFactor);
     }
 
     public async ValueTask DisposeAsync()
@@ -82,23 +92,36 @@ public sealed class Bridge : IBridge, IAsyncDisposable
         {
             var module = await moduleTask.Value;
             await module.InvokeVoidAsync("disposeListeners");
+            _dotNetObjectReference.Dispose();
             await module.DisposeAsync();
         }
     }
 
-    private static Common.Platform GetPlatform()
+    public async ValueTask DisposeListener()
+    {
+        if(moduleTask.IsValueCreated && IsListening)
+        {
+            var module = await moduleTask.Value;
+            await module.InvokeVoidAsync("disposeListeners");
+            _isListening = false;
+        }
+    }
+
+    private static Common.PlatformIdentity GetPlatform()
     {
 #if ANDROID || IOS || WINDOWS || MACCATALYST
         if(DeviceInfo.Platform == DevicePlatform.Android)
-            return Common.Platform.Android;
+            return Common.PlatformIdentity.Android;
         else if(DeviceInfo.Platform == DevicePlatform.iOS)
-            return Common.Platform.iOS;
+            return Common.PlatformIdentity.IOS;
         else if(DeviceInfo.Platform == DevicePlatform.MacCatalyst)
-            return Common.Platform.Mac;
+            return Common.PlatformIdentity.Mac;
+        else if(DeviceInfo.Platform == DevicePlatform.WinUI)
+            return Common.PlatformIdentity.Windows;
         else
-            return Common.Platform.Unknown;
+            return Common.PlatformIdentity.Unknown;
 #else
-        return Common.Platform.Web;
+        return Common.PlatformIdentity.Web;
 #endif
     }
 
@@ -108,6 +131,15 @@ public sealed class Bridge : IBridge, IAsyncDisposable
         return FrameworkIdentity.Maui;
 #else
         return FrameworkIdentity.Blazor;
+#endif
+    }
+
+    private static string GetPlatformVersion()
+    {
+#if ANDROID || IOS || WINDOWS || MACCATALYST
+        return DeviceInfo.Version.ToString();
+#else
+        return "Unknown";
 #endif
     }
 }
