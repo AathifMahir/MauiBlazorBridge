@@ -4,9 +4,12 @@ namespace MauiBlazorBridge;
 public interface IBridge
 {
     FrameworkIdentity Framework { get; }
-    Common.Platform Platform { get; }
-    DeviceFormFactor Idiom {  get; }
-    EventHandler<DeviceFormFactor>? IdiomChanged { get; set; }
-    Task InitializeAsync(bool isIdiomListenerEnabled = false);
+    Common.PlatformIdentity Platform { get; }
+    string PlatformVersion { get; }
+    DeviceFormFactor FormFactor {  get; }
+    EventHandler<DeviceFormFactor>? FormFactorChanged { get; set; }
+    Task InitializeAsync(bool isListenerEnabled = false);
+    Task InitializeListenerAsync();
+    ValueTask DisposeListener();
     bool IsListening { get; }
 }
