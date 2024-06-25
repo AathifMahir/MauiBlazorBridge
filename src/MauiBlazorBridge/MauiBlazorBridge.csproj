@@ -29,4 +29,33 @@
 		<PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="8.0.6" />
 	</ItemGroup>
 
+	<PropertyGroup>
+		<GitInfoReportImportance>high</GitInfoReportImportance>
+		<PackageId>AathifMahir.MauiBlazor.MauiBlazorBridge</PackageId>
+		<Summary>MauiBlazorBridge - is a Helper Utitlity That Makes Easier for Maui Blazor Hybrid Developers to Seamlessly Detect Platform, FormFactor and Etc..</Summary>
+		<Authors>Aathif Mahir</Authors>
+		<Owners>Aathif Mahir</Owners>
+		<NeutralLanguage>en</NeutralLanguage>
+		<Product>Maui Theme (net8.0)</Product>
+		<Copyright>© Aathif Mahir. All rights reserved.</Copyright>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<PackageProjectUrl>https://github.com/AathifMahir/MauiBlazorBridge</PackageProjectUrl>
+		<RepositoryUrl>https://github.com/AathifMahir/MauiBlazorBridge</RepositoryUrl>
+		<DefineConstants>$(DefineConstants);</DefineConstants>
+		<UseFullSemVerForNuGet>false</UseFullSemVerForNuGet>
+		<Title>MauiBlazorBridge</Title>
+		<Description>MauiBlazorBridge is a Helper Utitlity That Makes Easier for Maui Blazor Hybrid Developers to Seamlessly Detect Platform, FormFactor and Etc..</Description>
+		<PackageIcon>icon.png</PackageIcon>
+		<Product>$(AssemblyName) ($(TargetFramework))</Product>
+		<AssemblyVersion>1.0.0.0</AssemblyVersion>
+		<AssemblyFileVersion>1.0.0.0</AssemblyFileVersion>
+		<Version>1.0.0-pre1</Version>
+		<PackageVersion>$(Version)$(VersionSuffix)</PackageVersion>
+		<PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+		<PackageTags>Maui,blazor,maui blazor hybrid,maui hybrid,blazor hybrid,platform,formfactor</PackageTags>
+		<Configurations>Debug;Release</Configurations>
+		<GeneratePackageOnBuild>False</GeneratePackageOnBuild>
+		<PackageReleaseNotes>$([System.IO.File]::ReadAllText("$(MSBuildProjectDirectory)/ReleaseNotes.txt"))</PackageReleaseNotes>
+	</PropertyGroup>
+
 </Project>
