@@ -9,8 +9,10 @@ public sealed class Bridge : IBridge, IAsyncDisposable
     public PlatformIdentity Platform { get; set; } = PlatformIdentity.Unknown;
     public DeviceFormFactor FormFactor { get; set; } = DeviceFormFactor.Unknown;
     public EventHandler<DeviceFormFactor>? FormFactorChanged { get; set; }
+    public EventHandler<PlatformIdentity>? PlatformChanged { get; set; }
     public bool IsListening { get; set; }
     public string PlatformVersion { get; set; } = GetPlatformVersion();
+    
 
     private readonly Lazy<Task<IJSObjectReference>> moduleTask;
 
@@ -44,6 +46,7 @@ public sealed class Bridge : IBridge, IAsyncDisposable
 
         FormFactor = await GetFormFactorAsync(module);
         Platform = await GetPlatformAsync(module);
+        PlatformChanged?.Invoke(this, Platform);
 
         if (isListenerEnabled)
             await module.InvokeVoidAsync("registerResizeListener", _dotNetObjectReference);
