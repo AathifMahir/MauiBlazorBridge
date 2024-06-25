@@ -1,6 +1,4 @@
-﻿using MauiBlazorBridge.Common;
-
-namespace MauiBlazorBridge;
+﻿namespace MauiBlazorBridge;
 public interface IBridge
 {
     /// <summary>

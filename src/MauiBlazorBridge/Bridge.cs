@@ -1,6 +1,4 @@
 ﻿using Microsoft.JSInterop;
-using MauiBlazorBridge.Common;
-using MauiBlazorBridge.Common.Exceptions;
 
 namespace MauiBlazorBridge;
 public sealed class Bridge : IBridge, IAsyncDisposable
