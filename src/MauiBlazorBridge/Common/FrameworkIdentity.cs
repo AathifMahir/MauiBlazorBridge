@@ -1,4 +1,4 @@
-﻿namespace MauiBlazorBridge.Common;
+﻿namespace MauiBlazorBridge;
 public enum FrameworkIdentity
 {
     Unknown,
