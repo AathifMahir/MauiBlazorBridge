@@ -10,12 +10,6 @@
     [Parameter]
     public bool GlobalListener { get; set; } = false;
 
-    protected override void OnInitialized()
-    {
-        Console.WriteLine("BridgeProvider OnInitialized");
-        base.OnInitialized();
-    }
-
     protected async override Task OnAfterRenderAsync(bool firstRender)
     {
         if(firstRender)
