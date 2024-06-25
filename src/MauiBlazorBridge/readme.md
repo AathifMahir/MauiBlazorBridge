@@ -2,10 +2,6 @@
 
 MauiBlazorBridge is a Helper Utitlity That Makes Easier for Maui Blazor Hybrid Developers to Seamlessly Detect Platform, FormFactor and Etc..
 
-|**Latest Stable** | **Latest Preview**|
-|  :---:     |    :---:   |
-|[![AathifMahir.Maui.MauiShakeDetector](https://img.shields.io/nuget/v/AathifMahir.MauiBlazor.MauiBlazorBridge)](https://www.nuget.org/packages/AathifMahir.MauiBlazor.MauiBlazorBridge/) | [![AathifMahir.Maui.MauiShakeDetector](https://img.shields.io/nuget/vpre/AathifMahir.MauiBlazor.MauiBlazorBridge)](https://nuget.org/packages/AathifMahir.MauiBlazor.MauiBlazorBridge/absoluteLatest) |
-
 # Get Started
 
 **1.** In order to use the **MauiBlazorHybrid** you need to call the extension method in your **Program.cs** file as follows: 

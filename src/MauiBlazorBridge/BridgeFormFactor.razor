@@ -1,18 +1,51 @@
 ﻿@namespace MauiBlazorBridge
 @inject IBridge Bridge
-@implements IDisposable
+@implements IAsyncDisposable
 
-@if(formFactor == DeviceFormFactor.Mobile)
+@if(idiom == DeviceFormFactor.Mobile)
 {
-    @Mobile
+    @if(Mobile is not null)
+    {
+        @Mobile
+    }
+    else if (TabletAndMobile is not null)
+    {
+        @TabletAndMobile
+    }
+    else if (DesktopAndMobile is not null)
+    {
+        @DesktopAndMobile
+    }
 }
-else if (formFactor == DeviceFormFactor.Tablet)
+else if (idiom == DeviceFormFactor.Tablet)
 {
-    @Tablet
+    @if(Tablet is not null)
+    {
+        @Tablet
+    }
+    else if (TabletAndMobile is not null)
+    {
+        @TabletAndMobile
+    }
+    else if (DesktopAndTablet is not null)
+    {
+        @DesktopAndTablet
+    }
 }
-else if (formFactor == DeviceFormFactor.Desktop)
+else if (idiom == DeviceFormFactor.Desktop)
 {
-    @Desktop
+    @if(Desktop is not null)
+    {
+        @Desktop
+    }
+    else if (DesktopAndTablet is not null)
+    {
+        @DesktopAndTablet
+    }
+    else if (DesktopAndMobile is not null)
+    {
+        @DesktopAndMobile
+    }
 }
 else
 {
@@ -21,36 +54,57 @@ else
 
 
 @code {
+    [Parameter]
+    public RenderFragment? Desktop { get; set; }
 
     [Parameter]
-    public RenderFragment Mobile { get; set; } = default!;
+    public RenderFragment? Tablet { get; set; }
 
     [Parameter]
-    public RenderFragment Tablet { get; set; } = default!;
+    public RenderFragment? Mobile { get; set; }
 
     [Parameter]
-    public RenderFragment Desktop { get; set; } = default!;
+    public RenderFragment? Default { get; set; }
 
     [Parameter]
-    public RenderFragment Default { get; set; } = default!;
+    public RenderFragment? DesktopAndTablet { get; set; }
 
-    BridgeContext? bridgeContext;
+    [Parameter]
+    public RenderFragment? DesktopAndMobile { get; set; }
 
-    DeviceFormFactor formFactor = DeviceFormFactor.Unknown;
+    [Parameter]
+    public RenderFragment? TabletAndMobile { get; set; }
+
+
+    private BridgeContext? _bridgeContext;
+    DeviceFormFactor idiom = DeviceFormFactor.Unknown;
 
     protected override void OnInitialized()
     {
-        formFactor = Bridge.Idiom;
-        bridgeContext = BridgeContext.Create(Bridge, (x) =>
-        {
-            formFactor = x;
-            StateHasChanged();
-        });
+        idiom = Bridge.FormFactor;
         base.OnInitialized();
     }
 
-    public void Dispose()
+    protected async override Task OnAfterRenderAsync(bool firstRender)
     {
-        bridgeContext?.Dispose();
+        if (firstRender)
+        {
+            idiom = Bridge.FormFactor;
+
+            _bridgeContext = await BridgeContext.CreateAsync(Bridge, (f) =>
+            {
+                idiom = f;
+                StateHasChanged();
+            });
+        }
     }
+
+    public async ValueTask DisposeAsync()
+    {
+        if(_bridgeContext is not null)
+        {
+            await _bridgeContext.DisposeAsync();
+        }
+    }
+
 }
