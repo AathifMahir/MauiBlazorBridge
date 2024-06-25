@@ -5,6 +5,5 @@ public enum PlatformIdentity
     Android,
     IOS,
     Windows,
-    Mac,
-    Web
+    Mac
 }
