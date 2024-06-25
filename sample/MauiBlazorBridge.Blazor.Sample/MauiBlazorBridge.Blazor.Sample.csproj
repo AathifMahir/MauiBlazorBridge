@@ -7,6 +7,22 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Content Remove="wwwroot\helloService.js" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <_ContentIncludedByDefault Remove="wwwroot\helloService.js" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Services\HelloService.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="wwwroot\helloService.js" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="8.0.5" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="8.0.5" PrivateAssets="all" />
   </ItemGroup>
