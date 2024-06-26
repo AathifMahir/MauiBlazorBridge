@@ -19,16 +19,16 @@ public sealed class Bridge : IBridge, IAsyncDisposable
     private readonly DotNetObjectReference<Bridge> _dotNetObjectReference;
 
 #pragma warning disable IDE0051 // Remove unused private members
-    const string _blazorPath = "./_content/MauiBlazorBridge/MauiBlazorBridge.js";
-    const string _mauiPath = "./MauiBlazorBridge.js";
+    const string _releasePath = "./_content/AathifMahir.MauiBlazor.MauiBlazorBridge/MauiBlazorBridge.js";
+    const string _debugPath = "./MauiBlazorBridge.js";
 #pragma warning restore IDE0051 // Remove unused private members
 
     public Bridge(IJSRuntime jsRuntime)
     {
-#if ANDROID || IOS || WINDOWS || MACCATALYST
-        moduleTask = new(() => jsRuntime.InvokeAsync<IJSObjectReference>("import", _mauiPath).AsTask());
+#if DEBUG && ANDROID || DEBUG && IOS || DEBUG && WINDOWS || DEBUG && MACCATALYST
+        moduleTask = new(() => jsRuntime.InvokeAsync<IJSObjectReference>("import", _debugPath).AsTask());
 #else
-        moduleTask = new(() => jsRuntime.InvokeAsync<IJSObjectReference>("import", _blazorPath).AsTask());
+        moduleTask = new(() => jsRuntime.InvokeAsync<IJSObjectReference>("import", _releasePath).AsTask());
 #endif
 
         _dotNetObjectReference = DotNetObjectReference.Create(this);

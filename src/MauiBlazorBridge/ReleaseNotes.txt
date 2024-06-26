@@ -1,2 +1,2 @@
-﻿﻿v1.0.0-preview1
+﻿﻿v1.0.0-preview3
 • Initial Preview Release
