@@ -39,7 +39,7 @@ builder.Services.AddMauiBlazorBridge();
 </div>
 ```
 
-**Disclaimer:** When it comes PreRendering Enabled Blazor Flavor, You don't need to add `BridgeProvider` in `MainLayout.razor` file, Instead you need to add `BridgeProvider` in all the different Blazor Components that Utilizes Bridge. Additionally you need to Enable Interactivity for that Specific Component or Page
+**Disclaimer:** When it comes PreRendering Enabled Blazor Flavor, You don't need to add `BridgeProvider` in `MainLayout.razor` file, Instead you need to add `BridgeProvider` in all the different Blazor Components that Utilizes Bridge. Additionally you need to Enable Interactivity for that Specific Component or Page, Check the [Example Here](https://github.com/AathifMahir/MauiBlazorBridge/blob/master/sample/MauiBlazorBridge.Blazor.Server.Sample/Components/Pages/BridgePage.razor)
 
 # Usage
 
