@@ -83,6 +83,31 @@ builder.Services.AddMauiBlazorBridge();
 </BridgeFormFactor>
 ```
 
+**Recommended:** Approach to Get the Current FormFactor into to Code, is to Bind to `FormFactorChanged` EventCallBack in BridgeFormFactor Component
+
+```html
+
+<BridgeFormFactor @bind:FormFactorChanged="FormFactorChanged">
+    <Mobile>
+        <h3>FormFactor : Mobile</h3>
+    </Mobile>
+    <Tablet>
+        <h3>FormFactor : Tablet</h3>
+    </Tablet>
+    <Desktop>
+        <h3>FormFactor : Desktop</h3>
+    </Desktop>
+    <Default>
+        <h3>FormFactor : Unknown</h3>
+    </Default>
+</BridgeFormFactor>
+
+@code {
+	private string FormFactorChanged { get; set; }
+}
+
+```
+
 ### BridgePlatform
 
 ```html
