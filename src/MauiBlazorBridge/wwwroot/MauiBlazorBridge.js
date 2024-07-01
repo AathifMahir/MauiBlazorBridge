@@ -35,7 +35,7 @@ export function registerResizeListener(dotnetObject){
 export function disposeListeners() {
     if (window.resizeListener) {
         console.log("disposed all the listeners");
-        window.removeEventListener('resize', resizeListener);
+        window.removeEventListener('resize', window.resizeListener);
         window.resizeListener = null;
     }
 }
