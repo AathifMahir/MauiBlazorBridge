@@ -16,6 +16,10 @@
     {
         @DesktopAndMobile
     }
+    else
+    {
+        @Default
+    }
 }
 else if (idiom == DeviceFormFactor.Tablet)
 {
@@ -31,6 +35,10 @@ else if (idiom == DeviceFormFactor.Tablet)
     {
         @DesktopAndTablet
     }
+    else
+    {
+        @Default
+    }
 }
 else if (idiom == DeviceFormFactor.Desktop)
 {
@@ -45,6 +53,10 @@ else if (idiom == DeviceFormFactor.Desktop)
     else if (DesktopAndMobile is not null)
     {
         @DesktopAndMobile
+    }
+    else
+    {
+        @Default
     }
 }
 else
@@ -75,6 +87,9 @@ else
     [Parameter]
     public RenderFragment? TabletAndMobile { get; set; }
 
+    [Parameter]
+    public EventCallback<DeviceFormFactor> FormFactorChanged { get; set; }
+
 
     private BridgeContext? _bridgeContext;
     DeviceFormFactor idiom = DeviceFormFactor.Unknown;
@@ -91,9 +106,10 @@ else
         {
             idiom = Bridge.FormFactor;
 
-            _bridgeContext = await BridgeContext.CreateAsync(Bridge, (f) =>
+            _bridgeContext = await BridgeContext.CreateAsync(Bridge, async (f) =>
             {
                 idiom = f;
+                await FormFactorChanged.InvokeAsync(f);
                 StateHasChanged();
             });
         }
