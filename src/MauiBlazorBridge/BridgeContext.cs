@@ -5,12 +5,12 @@ public sealed class BridgeContext : IAsyncDisposable
     private readonly IBridge _bridge;
     public event Action<DeviceFormFactor>? OnChanged;
 
-    private readonly bool _isGlobalListener = true;
+    private readonly ListenerType _listenerType;
 
     private BridgeContext(IBridge bridge)
     {
         _bridge = bridge;
-        _isGlobalListener = bridge.IsListening;
+        _listenerType = bridge.ListenerType;
         _bridge.FormFactorChanged += Bridge_IdiomChanged;
     }
 
@@ -30,7 +30,7 @@ public sealed class BridgeContext : IAsyncDisposable
     {
         var bridgeContext = new BridgeContext(bridge);
 
-        if (!bridgeContext._isGlobalListener)
+        if (bridgeContext._listenerType is ListenerType.None)
             await bridge.InitializeListenerAsync();
 
         bridgeContext.OnChanged += onIdiomChangedCallback;
@@ -44,7 +44,7 @@ public sealed class BridgeContext : IAsyncDisposable
     /// </summary>
     public async ValueTask DisposeAsync()
     {
-        if (!_isGlobalListener)
+        if (_listenerType is ListenerType.None)
             await _bridge.DisposeListener();
 
         _bridge.FormFactorChanged -= Bridge_IdiomChanged;

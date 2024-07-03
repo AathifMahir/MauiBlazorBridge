@@ -1,6 +1,7 @@
 const mobileIdiom = 'Mobile';
 const tabletIdiom = 'Tablet';
 const desktopIdiom = 'Desktop';
+const unknownIdiom = 'Unknown';
 window.resizeListener = null;
 
 export function getFormFactor() {
@@ -12,14 +13,10 @@ export function getFormFactor() {
         return mobileIdiom;
     } else if (width > 768 && width <= 1024) {
         return tabletIdiom;
-    } else if (width > 1024 && width <= 1200) {
-        return desktopIdiom;
-    } else if (width > 1200 && width <= 1600) {
-        return desktopIdiom;
-    } else if (width > 1600 && width <= 1920) {
+    } else if (width > 1024) {
         return desktopIdiom;
     } else {
-        return desktopIdiom;
+        return unknownIdiom;
     }
 }
 export function registerResizeListener(dotnetObject){
@@ -35,7 +32,7 @@ export function registerResizeListener(dotnetObject){
 export function disposeListeners() {
     if (window.resizeListener) {
         console.log("disposed all the listeners");
-        window.removeEventListener('resize', resizeListener);
+        window.removeEventListener('resize', window.resizeListener);
         window.resizeListener = null;
     }
 }

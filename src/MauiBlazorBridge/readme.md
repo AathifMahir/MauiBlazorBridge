@@ -16,8 +16,7 @@ builder.Services.AddMauiBlazorBridge();
 @using MauiBlazorBridge
 ```
 
-**3.** In `MainLayout.razor` file, you need to add `BridgeProvider` to Initialize the Bridge. Additionally Setting `GlobalListener` Property to True Makes Bridge to Listen to FormFactor Changes Globaly Instead of Creating and Disposing Listener During the Usage of `BridgeFormFactor` Component
-
+**3.** In `MainLayout.razor` file, you need to add `BridgeProvider` to Initialize the Bridge. Additionally Setting `ListenerType` Property to `Global` Makes Bridge to Listen to FormFactor Changes Globaly Instead of Creating and Disposing Listener During the Usage of `BridgeFormFactor` Component, Additionally If it is Set to `Suppressed` that would prevent Bridge from Creating a Listener Instead Get Values Once from the Device and Use Across the Bridge
 ```html
 @inherits LayoutComponentBase
 <div class="page">
@@ -64,7 +63,7 @@ builder.Services.AddMauiBlazorBridge();
 
 # Components
 
-### BridgeFormFactor
+## BridgeFormFactor
 
 ```html
 <BridgeFormFactor>
@@ -83,7 +82,33 @@ builder.Services.AddMauiBlazorBridge();
 </BridgeFormFactor>
 ```
 
-### BridgePlatform
+**Recommended Approach:** To obtain the current Form Factor, bind to the `FormFactorChanged` EventCallBack in the BridgeFormFactor component as Shown in the below example
+
+```html
+
+<BridgeFormFactor @bind:FormFactorChanged="FormFactorChanged">
+    <Mobile>
+        <h3>FormFactor : Mobile</h3>
+    </Mobile>
+    <Tablet>
+        <h3>FormFactor : Tablet</h3>
+    </Tablet>
+    <Desktop>
+        <h3>FormFactor : Desktop</h3>
+    </Desktop>
+    <Default>
+        <h3>FormFactor : Unknown</h3>
+    </Default>
+</BridgeFormFactor>
+
+@code {
+	private DeviceFormFactor FormFactorChanged { get; set; }
+}
+
+```
+
+
+## BridgePlatform
 
 ```html
 <BridgePlatform>
@@ -105,7 +130,7 @@ builder.Services.AddMauiBlazorBridge();
 </BridgePlatform>
  ```
 
- ### BridgeFramework
+ ## BridgeFramework
 
  ```html
  <BridgeFramework>

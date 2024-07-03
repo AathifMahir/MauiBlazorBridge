@@ -1,4 +1,6 @@
-﻿namespace MauiBlazorBridge;
+﻿using Microsoft.JSInterop;
+
+namespace MauiBlazorBridge;
 public interface IBridge
 {
     /// <summary>
@@ -34,16 +36,16 @@ public interface IBridge
     /// <summary>
     /// This is Used for Initializing the Bridge and used Internally on BridgeProvider
     /// </summary>
-    /// <param name="isListenerEnabled">
-    /// Determines Whether the Bridge Should Listen to Changes in the Form Factor of the Device Globally
+    /// <param name="listenerType">
+    /// Determines Whether the Bridge Should Listen to Changes in Globally, Suppressed or None
     /// </param>
-    Task InitializeAsync(bool isListenerEnabled = false);
+    Task InitializeAsync(ListenerType listenerType = ListenerType.None);
 
     /// <summary>
     /// This is Used for Initializing the Listener and Used Internally by the BridgeContext
     /// </summary>
     /// <returns></returns>
-    Task InitializeListenerAsync();
+    Task InitializeListenerAsync(IJSObjectReference? jsObject = null);
 
     /// <summary>
     /// This is Used for Disposing the Listener and Used Internally by the BridgeContext
@@ -51,7 +53,7 @@ public interface IBridge
     ValueTask DisposeListener();
 
     /// <summary>
-    /// This is Used for Identifying Whether the Bridge is Listening to Changes in the Form Factor of the Device Globally
+    /// This is used Identity Whether Listener is Attached to the Bridge Globally, Suppressed
     /// </summary>
-    bool IsListening { get; }
+    ListenerType ListenerType { get; }
 }
