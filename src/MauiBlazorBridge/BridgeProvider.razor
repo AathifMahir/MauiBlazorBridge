@@ -8,13 +8,13 @@
     public RenderFragment ChildContent { get; set; } = default!;
 
     [Parameter]
-    public bool GlobalListener { get; set; } = false;
+    public ListenerType ListenerType { get; set; } = ListenerType.None;
 
     protected async override Task OnAfterRenderAsync(bool firstRender)
     {
         if(firstRender)
         {
-            await Bridge.InitializeAsync(GlobalListener);
+            await Bridge.InitializeAsync(ListenerType);
         }
     }
 
