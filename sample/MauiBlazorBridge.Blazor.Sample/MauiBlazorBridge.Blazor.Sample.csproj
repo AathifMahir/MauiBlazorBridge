@@ -7,15 +7,18 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Services\**" />
+    <Content Remove="Services\**" />
+    <EmbeddedResource Remove="Services\**" />
+    <None Remove="Services\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Content Remove="wwwroot\helloService.js" />
   </ItemGroup>
 
   <ItemGroup>
     <_ContentIncludedByDefault Remove="wwwroot\helloService.js" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Content Include="Services\HelloService.cs" />
   </ItemGroup>
 
   <ItemGroup>
