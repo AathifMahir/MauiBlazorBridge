@@ -78,8 +78,10 @@ public sealed class Bridge : IBridge, IAsyncDisposable
             throw new MauiBlazorBridgeException("Bridge is not initialized.");
 
         if (Enum.TryParse<DeviceFormFactor>(idiom, out var deviceFormFactor))
+        {
+            FormFactor = deviceFormFactor;
             FormFactorChanged?.Invoke(this, deviceFormFactor);
-
+        }
         return ValueTask.CompletedTask;
     }
 
@@ -199,13 +201,12 @@ public sealed class Bridge : IBridge, IAsyncDisposable
         var width = Application.Current.MainPage.Window.Width;
 
         DeviceFormFactor newFormFactor;
-        if (width <= 480)
+
+        if (width <= 767)
             newFormFactor = DeviceFormFactor.Mobile;
-        else if(width > 480 && width <= 768)
-            newFormFactor = DeviceFormFactor.Mobile;
-        else if(width > 768 && width <= 1024)
+        else if(width >= 768 && width <= 1023)
             newFormFactor = DeviceFormFactor.Tablet;
-        else if(width > 1024)
+        else if(width >= 1024)
             newFormFactor = DeviceFormFactor.Desktop;
         else
             newFormFactor = DeviceFormFactor.Unknown;
