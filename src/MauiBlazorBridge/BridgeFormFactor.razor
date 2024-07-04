@@ -90,6 +90,10 @@ else
     [Parameter]
     public EventCallback<DeviceFormFactor> FormFactorChanged { get; set; }
 
+    /// <summary>
+    /// This parameter is used to avoid creating or attaching existing listener to this instance of BridgeFormFactor. Therefore this would use FormFactor Value of the Bridge at the time of initialization.
+    /// </summary>
+
     [Parameter]
     public bool ListenOnceDuringInitialization { get; set; } = false;
 
