@@ -2,9 +2,9 @@
 @inject IBridge Bridge
 @implements IAsyncDisposable
 
-@if(idiom == DeviceFormFactor.Mobile)
+@if (idiom is DeviceFormFactor.Mobile)
 {
-    @if(Mobile is not null)
+    @if (Mobile is not null)
     {
         @Mobile
     }
@@ -21,9 +21,9 @@
         @Default
     }
 }
-else if (idiom == DeviceFormFactor.Tablet)
+else if (idiom is DeviceFormFactor.Tablet)
 {
-    @if(Tablet is not null)
+    @if (Tablet is not null)
     {
         @Tablet
     }
@@ -40,9 +40,9 @@ else if (idiom == DeviceFormFactor.Tablet)
         @Default
     }
 }
-else if (idiom == DeviceFormFactor.Desktop)
+else if (idiom is DeviceFormFactor.Desktop)
 {
-    @if(Desktop is not null)
+    @if (Desktop is not null)
     {
         @Desktop
     }
@@ -90,9 +90,13 @@ else
     [Parameter]
     public EventCallback<DeviceFormFactor> FormFactorChanged { get; set; }
 
+    [Parameter]
+    public bool ListenOnceDuringInitialization { get; set; } = false;
+
 
     private BridgeContext? _bridgeContext;
-    DeviceFormFactor idiom = DeviceFormFactor.Unknown;
+
+    private DeviceFormFactor idiom = DeviceFormFactor.Unknown;
 
     protected override void OnInitialized()
     {
@@ -104,21 +108,21 @@ else
     {
         if (firstRender)
         {
-            idiom = Bridge.FormFactor;
-
-
-            _bridgeContext = await BridgeContext.CreateAsync(Bridge, async (f) =>
+            if (!ListenOnceDuringInitialization)
             {
-                idiom = f;
-                await FormFactorChanged.InvokeAsync(f);
-                StateHasChanged();
-            });
+                _bridgeContext = await BridgeContext.CreateAsync(Bridge, async (f) =>
+                    {
+                        idiom = f;
+                        await FormFactorChanged.InvokeAsync(f);
+                        StateHasChanged();
+                    });
+            }
         }
     }
 
     public async ValueTask DisposeAsync()
     {
-        if(_bridgeContext is not null)
+        if (_bridgeContext is not null)
         {
             await _bridgeContext.DisposeAsync();
         }
