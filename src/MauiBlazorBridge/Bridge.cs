@@ -18,6 +18,7 @@ public sealed class Bridge : IBridge, IAsyncDisposable
 
     bool _isInitialized = false;
     int _listenerCount = 0;
+    CancellationTokenSource _cts = new();
 
     private readonly DotNetObjectReference<Bridge> _dotNetObjectReference;
 
@@ -56,7 +57,16 @@ public sealed class Bridge : IBridge, IAsyncDisposable
 
     public async Task InitializeListenerAsync(IJSObjectReference? jsObject = null)
     {
-        if (_listenerCount > 0 || ListenerType is ListenerType.Suppressed) return;
+        if (!_isInitialized)
+            throw new MauiBlazorBridgeException("Bridge is not initialized. Make sure to add BridgeProvider Component");
+
+        OnNewListener();
+
+        if (_listenerCount > 0 || ListenerType is ListenerType.Suppressed)
+        {
+            _listenerCount++;
+            return;
+        }
 
 #if ANDROID || IOS || WINDOWS || MACCATALYST
         MainThread.BeginInvokeOnMainThread(() =>
@@ -112,10 +122,14 @@ public sealed class Bridge : IBridge, IAsyncDisposable
 
     public async ValueTask DisposeListener()
     {
-        if (ListenerType is ListenerType.Global) return;
 
-        if (_listenerCount is 1)
+        try
         {
+            if (ListenerType is ListenerType.Global) return;
+
+            if (_listenerCount is 1)
+            {
+                await Task.Delay(TimeSpan.FromSeconds(10), _cts.Token);
 #if ANDROID || IOS || WINDOWS || MACCATALYST
             MainThread.BeginInvokeOnMainThread(() =>
             {
@@ -123,17 +137,27 @@ public sealed class Bridge : IBridge, IAsyncDisposable
                 Application.Current.MainPage.Window.SizeChanged -= WindowSizeChanged;
             });
 #else
-            if (moduleTask.IsValueCreated)
-            {
-                var module = await moduleTask.Value;
-                await module.InvokeVoidAsync("disposeListeners");
-            }
+                if (moduleTask.IsValueCreated)
+                {
+                    var module = await moduleTask.Value;
+                    await module.InvokeVoidAsync("disposeListeners");
+                }
 #endif
-            _listenerCount = 0;
+                _listenerCount = 0;
+            }
+            else if (_listenerCount > 0)
+                _listenerCount--;
         }
-        else if (_listenerCount > 0)
-            _listenerCount--;
+        catch (TaskCanceledException)
+        {
+            Console.WriteLine("DisposeListener Task was cancelled");
+        }
+    }
 
+    private void OnNewListener()
+    {
+        _cts.Cancel();
+        _cts = new();
     }
     private static async ValueTask<PlatformIdentity> GetPlatformAsync(IJSObjectReference module)
     {
