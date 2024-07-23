@@ -1,12 +1,11 @@
 ﻿#pragma warning disable CS1998
 #pragma warning disable IDE0051
 using Microsoft.JSInterop;
-using System.Diagnostics;
 
 namespace MauiBlazorBridge;
 public sealed class Bridge : IBridge, IAsyncDisposable
 {
-    public FrameworkIdentity Framework { get; set; } = GetFrameworkIdentity();
+    public Framework Framework { get; set; } = GetFrameworkIdentity();
     public PlatformIdentity Platform { get; set; } = PlatformIdentity.Unknown;
     public DeviceFormFactor FormFactor { get; set; } = DeviceFormFactor.Unknown;
     public EventHandler<DeviceFormFactor>? FormFactorChanged { get; set; }
@@ -34,6 +33,7 @@ public sealed class Bridge : IBridge, IAsyncDisposable
 #endif
 
         _dotNetObjectReference = DotNetObjectReference.Create(this);
+
     }
 
     public async Task InitializeAsync(ListenerType listenerType = ListenerType.None)
@@ -48,10 +48,11 @@ public sealed class Bridge : IBridge, IAsyncDisposable
         Platform = await GetPlatformAsync(module);
         PlatformChanged?.Invoke(this, Platform);
 
+        _isInitialized = true;
+
         if (listenerType is ListenerType.Global)
             await InitializeListenerAsync(module);
 
-        _isInitialized = true;
     }
 
 
@@ -199,12 +200,12 @@ public sealed class Bridge : IBridge, IAsyncDisposable
 #endif
     }
 
-    private static FrameworkIdentity GetFrameworkIdentity()
+    private static Framework GetFrameworkIdentity()
     {
 #if ANDROID || IOS || WINDOWS || MACCATALYST
-        return FrameworkIdentity.Maui;
+        return Framework.Maui;
 #else
-        return FrameworkIdentity.Blazor;
+        return Framework.Blazor;
 #endif
     }
 
