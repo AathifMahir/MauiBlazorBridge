@@ -21,6 +21,7 @@ public static class MauiProgram
 #endif
 
         builder.Services.AddMauiBlazorBridge();
+        builder.Services.AddScoped<PromptService>();
 
         return builder.Build();
     }
