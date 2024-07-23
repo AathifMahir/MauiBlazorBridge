@@ -1,4 +1,8 @@
-﻿﻿v1.0.0-preview6
+﻿﻿v1.0.0-preview7
+• New BridgeFrameworkHandlers Constructs
+• Minor Fixes and Improvements
+﻿
+v1.0.0-preview6
 • Minor Fixes and Improvements
 ﻿
 v1.0.0-preview5

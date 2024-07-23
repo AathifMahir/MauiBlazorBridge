@@ -1,3 +1,3 @@
-export function promptHello() {
-    return "Hello, World! from Js";
+export function prompt(message) {
+    prompt(message);
 }

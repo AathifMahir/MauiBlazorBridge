@@ -1,5 +1,5 @@
 ﻿namespace MauiBlazorBridge;
-public enum FrameworkIdentity
+public enum Framework
 {
     Unknown,
     Maui,

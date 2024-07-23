@@ -6,7 +6,7 @@ public interface IBridge
     /// <summary>
     /// This is Used to Determine the Framework of the Application, Whether it is Blazor or Maui
     /// </summary>
-    FrameworkIdentity Framework { get; }
+    Framework Framework { get; }
 
     /// <summary>
     /// This is Used for Determining the Platform of the Application, Whether it is Android, iOS, Windows, or Mac
