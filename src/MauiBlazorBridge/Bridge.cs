@@ -1,22 +1,30 @@
 ﻿#pragma warning disable CS1998
 #pragma warning disable IDE0051
 using Microsoft.JSInterop;
+using System.Text.Json;
 
 namespace MauiBlazorBridge;
 public sealed class Bridge : IBridge, IAsyncDisposable
 {
     public Framework Framework { get; set; } = GetFrameworkIdentity();
     public PlatformIdentity Platform { get; set; } = PlatformIdentity.Unknown;
-    public DeviceFormFactor FormFactor { get; set; } = DeviceFormFactor.Unknown;
+    public DeviceFormFactor DeviceFormFactor { get; set; } = DeviceFormFactor.UnknownState();
+    public bool InternetConnection { get; set; } = false;
     public EventHandler<DeviceFormFactor>? FormFactorChanged { get; set; }
     public EventHandler<PlatformIdentity>? PlatformChanged { get; set; }
+    public event EventHandler<bool>? InternetConnectionChanged;
+
     public string PlatformVersion { get; set; } = GetPlatformVersion();
     public ListenerType ListenerType { get; set; }
 
+
+
     private readonly Lazy<Task<IJSObjectReference>> moduleTask;
+    private readonly IJSRuntime _jsRuntime;
 
     bool _isInitialized = false;
     int _listenerCount = 0;
+    int _internetConnectionIntervalinSeconds = 5;
     CancellationTokenSource _cts = new();
 
     private readonly DotNetObjectReference<Bridge> _dotNetObjectReference;
@@ -26,6 +34,8 @@ public sealed class Bridge : IBridge, IAsyncDisposable
 
     public Bridge(IJSRuntime jsRuntime)
     {
+        _jsRuntime = jsRuntime;
+
 #if DEBUG && ANDROID || DEBUG && IOS || DEBUG && WINDOWS || DEBUG && MACCATALYST
         moduleTask = new(() => jsRuntime.InvokeAsync<IJSObjectReference>("import", _debugPath).AsTask());
 #else
@@ -36,23 +46,27 @@ public sealed class Bridge : IBridge, IAsyncDisposable
 
     }
 
-    public async Task InitializeAsync(ListenerType listenerType = ListenerType.None)
+    public async Task InitializeAsync(ListenerType listenerType = ListenerType.None, int? internetConnectionIntervalinSeconds = null)
     {
         if (_isInitialized) return;
 
         ListenerType = listenerType;
+        _internetConnectionIntervalinSeconds = internetConnectionIntervalinSeconds ?? 5;
 
         var module = await moduleTask.Value ?? throw new MauiBlazorBridgeException("Failed to import the MauiBlazorHybrid.js");
 
-        FormFactor = await GetFormFactorAsync(module);
+        DeviceFormFactor = await GetFormFactorAsync(module);
         Platform = await GetPlatformAsync(module);
         PlatformChanged?.Invoke(this, Platform);
+        var isOnline = await GetInternetConnectionStatus(module);
+        InternetConnection = isOnline;
 
         _isInitialized = true;
 
         if (listenerType is ListenerType.Global)
             await InitializeListenerAsync(module);
 
+        await InitializeNetworkListenerAsync(module);
     }
 
 
@@ -82,18 +96,49 @@ public sealed class Bridge : IBridge, IAsyncDisposable
         _listenerCount++;
     }
 
+    public async Task InitializeNetworkListenerAsync(IJSObjectReference? jsObject = null)
+    {
+        if (!_isInitialized)
+            throw new MauiBlazorBridgeException("Bridge is not initialized. Make sure to add BridgeProvider Component");
+
+#if ANDROID || IOS || WINDOWS || MACCATALYST
+        Connectivity.ConnectivityChanged += NetworkConnectivityChanged;
+#else
+
+        var module = jsObject ?? await moduleTask.Value ?? throw new MauiBlazorBridgeException("Failed to import the MauiBlazorHybrid.js");
+        await module.InvokeVoidAsync("registerNetworkListener", _dotNetObjectReference, _internetConnectionIntervalinSeconds);
+#endif
+    }
+
+#if ANDROID || IOS || WINDOWS || MACCATALYST
+    private void NetworkConnectivityChanged(object? sender, ConnectivityChangedEventArgs e)
+    {
+        InternetConnection = e.NetworkAccess == NetworkAccess.Internet;
+        InternetConnectionChanged?.Invoke(this, InternetConnection);
+    }
+#endif
+
     [JSInvokable]
-    public ValueTask OnIdiomChangedCallback(string idiom)
+    public ValueTask OnIdiomChangedCallback(string idiomString)
     {
         if (!_isInitialized)
             throw new MauiBlazorBridgeException("Bridge is not initialized.");
 
-        if (Enum.TryParse<DeviceFormFactor>(idiom, out var deviceFormFactor))
+        var idiom = JsonSerializer.Deserialize<DeviceFormFactor>(idiomString);
+
+        if (idiom is not null)
         {
-            FormFactor = deviceFormFactor;
-            FormFactorChanged?.Invoke(this, deviceFormFactor);
+            DeviceFormFactor = idiom;
+            FormFactorChanged?.Invoke(this, idiom);
         }
         return ValueTask.CompletedTask;
+    }
+
+    [JSInvokable]
+    public void NotifyNetworkStatusChanged(bool onlineStatus)
+    {
+        InternetConnectionChanged?.Invoke(this, onlineStatus);
+        InternetConnection = onlineStatus;
     }
 
     public async ValueTask DisposeAsync()
@@ -155,6 +200,19 @@ public sealed class Bridge : IBridge, IAsyncDisposable
         }
     }
 
+    public async ValueTask DisposeNetworkListenerAsync()
+    {
+#if ANDROID || IOS || WINDOWS || MACCATALYST
+        Connectivity.ConnectivityChanged -= NetworkConnectivityChanged;
+#else
+        if (moduleTask.IsValueCreated)
+        {
+            var module = await moduleTask.Value;
+            await module.InvokeVoidAsync("disposeNetworkListener");
+        }
+#endif
+    }
+
     private void OnNewListener()
     {
         _cts.Cancel();
@@ -184,19 +242,22 @@ public sealed class Bridge : IBridge, IAsyncDisposable
     {
 #if ANDROID || IOS || WINDOWS || MACCATALYST
         if(DeviceInfo.Idiom == DeviceIdiom.Phone)
-            return DeviceFormFactor.Mobile;
+            return new DeviceFormFactor(FormFactor.Mobile, 0, 0);
         else if(DeviceInfo.Idiom == DeviceIdiom.Tablet)
-            return DeviceFormFactor.Tablet;
+            return new DeviceFormFactor(FormFactor.Tablet, 0, 0);
         else if(DeviceInfo.Idiom == DeviceIdiom.Desktop)
-            return DeviceFormFactor.Desktop;
+            return new DeviceFormFactor(FormFactor.Desktop, 0, 0);
         else
-            return DeviceFormFactor.Unknown;
+            return DeviceFormFactor.UnknownState();
 #else
 
-        if (Enum.TryParse<DeviceFormFactor>(await module.InvokeAsync<string>("getFormFactor"), out var deviceFormFactor))
-            return deviceFormFactor;
+        var formFactorString = await module.InvokeAsync<string>("getFormFactor");
 
-        return DeviceFormFactor.Unknown;
+        if(string.IsNullOrEmpty(formFactorString))
+            return DeviceFormFactor.UnknownState();
+
+        var formFactor = JsonSerializer.Deserialize<DeviceFormFactor>(formFactorString);
+        return formFactor ?? DeviceFormFactor.UnknownState();
 #endif
     }
 
@@ -218,27 +279,38 @@ public sealed class Bridge : IBridge, IAsyncDisposable
 #endif
     }
 
+    private async static ValueTask<bool> GetInternetConnectionStatus(IJSObjectReference module)
+    {
+#if ANDROID || IOS || WINDOWS || MACCATALYST
+        return Connectivity.NetworkAccess == NetworkAccess.Internet;
+#else
+        var isOnline = await module.InvokeAsync<bool>("getNetworkStatus");
+        return isOnline;
+#endif
+    }
+
 #if ANDROID || IOS || WINDOWS || MACCATALYST
     private void WindowSizeChanged(object? sender, EventArgs args)
     {
         if (Application.Current is null || Application.Current.MainPage is null) return;
 
         var width = Application.Current.MainPage.Window.Width;
+        var height = Application.Current.MainPage.Window.Height;
 
         DeviceFormFactor newFormFactor;
 
         if (width <= 767)
-            newFormFactor = DeviceFormFactor.Mobile;
+            newFormFactor = new DeviceFormFactor(FormFactor.Mobile, width, height);
         else if(width >= 768 && width <= 1023)
-            newFormFactor = DeviceFormFactor.Tablet;
+            newFormFactor = new DeviceFormFactor(FormFactor.Tablet, width, height);
         else if(width >= 1024)
-            newFormFactor = DeviceFormFactor.Desktop;
+            newFormFactor = new DeviceFormFactor(FormFactor.Desktop, width, height);
         else
-            newFormFactor = DeviceFormFactor.Unknown;
+            newFormFactor = DeviceFormFactor.UnknownState(width, height);
 
-        if (newFormFactor != FormFactor)
+        if (newFormFactor.FormFactor != DeviceFormFactor.FormFactor)
         {
-            FormFactor = newFormFactor;
+            DeviceFormFactor = newFormFactor;
             FormFactorChanged?.Invoke(this, newFormFactor);
         }
     }
