@@ -19,19 +19,28 @@ public interface IBridge
     string PlatformVersion { get; }
 
     /// <summary>
+    /// This is Used for Determining Whether the Device is Connected to the Internet or Not
+    /// </summary>
+    bool InternetConnection { get; }
+
+    /// <summary>
     /// This is Used for Determining the Form Factor of the Device, Whether it is Desktop, Tablet, or Mobile
     /// </summary>
-    DeviceFormFactor FormFactor {  get; }
+    DeviceFormFactor DeviceFormFactor {  get; }
 
     /// <summary>
     /// This is Used for Listening to Changes in the Form Factor of the Device and Internally Used by the BridgeContext
     /// </summary>
     EventHandler<DeviceFormFactor>? FormFactorChanged { get; set; }
-
     /// <summary>
     /// Platform Changed is Mainly Used for Scenario Where PreRendering is Enabled, In Most Cases Use the Platform Property
     /// </summary>
     EventHandler<PlatformIdentity>? PlatformChanged { get; set; }
+
+    /// <summary>
+    /// This is Used for Determining Whether the Device is Connected to the Internet or Not
+    /// </summary>
+    event EventHandler<bool>? InternetConnectionChanged;
 
     /// <summary>
     /// This is Used for Initializing the Bridge and used Internally on BridgeProvider
@@ -39,7 +48,7 @@ public interface IBridge
     /// <param name="listenerType">
     /// Determines Whether the Bridge Should Listen to Changes in Globally, Suppressed or None
     /// </param>
-    Task InitializeAsync(ListenerType listenerType = ListenerType.None);
+    Task InitializeAsync(ListenerType listenerType = ListenerType.None, int? internetConnectionInterval = null);
 
     /// <summary>
     /// This is Used for Initializing the Listener and Used Internally by the BridgeContext
@@ -51,6 +60,11 @@ public interface IBridge
     /// This is Used for Disposing the Listener and Used Internally by the BridgeContext
     /// </summary>
     ValueTask DisposeListener();
+
+    /// <summary>
+    /// This is Used for Disposing the Network Listener
+    /// </summary>
+    ValueTask DisposeNetworkListenerAsync();
 
     /// <summary>
     /// This is used Identity Whether Listener is Attached to the Bridge Globally, Suppressed
