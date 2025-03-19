@@ -2,7 +2,7 @@
 @inject IBridge Bridge
 @implements IAsyncDisposable
 
-@if (idiom is DeviceFormFactor.Mobile)
+@if (idiom.FormFactor is FormFactor.Mobile)
 {
     @if (Mobile is not null)
     {
@@ -21,7 +21,7 @@
         @Default
     }
 }
-else if (idiom is DeviceFormFactor.Tablet)
+else if (idiom.FormFactor is FormFactor.Tablet)
 {
     @if (Tablet is not null)
     {
@@ -40,7 +40,7 @@ else if (idiom is DeviceFormFactor.Tablet)
         @Default
     }
 }
-else if (idiom is DeviceFormFactor.Desktop)
+else if (idiom.FormFactor is FormFactor.Desktop)
 {
     @if (Desktop is not null)
     {
@@ -100,11 +100,11 @@ else
 
     private BridgeContext? _bridgeContext;
 
-    private DeviceFormFactor idiom = DeviceFormFactor.Unknown;
+    private DeviceFormFactor idiom = DeviceFormFactor.UnknownState();
 
     protected override void OnInitialized()
     {
-        idiom = Bridge.FormFactor;
+        idiom = Bridge.DeviceFormFactor;
         base.OnInitialized();
     }
 

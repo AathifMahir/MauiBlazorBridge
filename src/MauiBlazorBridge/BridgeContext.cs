@@ -34,7 +34,7 @@ public sealed class BridgeContext : IAsyncDisposable
             await bridge.InitializeListenerAsync();
 
         bridgeContext.OnChanged += onIdiomChangedCallback;
-        bridge.FormFactorChanged?.Invoke(bridge, bridge.FormFactor);
+        bridge.FormFactorChanged?.Invoke(bridge, bridge.DeviceFormFactor);
         return bridgeContext;
     }
 
