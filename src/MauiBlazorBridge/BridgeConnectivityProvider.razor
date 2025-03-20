@@ -1,0 +1,19 @@
+﻿@inject IBridgeConnectivity BridgeConnection
+
+@ChildContent
+
+@code {
+    [Parameter]
+    public int ConnectivityIntervalInSeconds { get; set; } = 10;
+
+    [Parameter]
+    public RenderFragment ChildContent { get; set; } = default!;
+
+    protected async override Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await BridgeConnection.InitializeAsync(ConnectivityIntervalInSeconds);
+        }
+    }
+}
