@@ -24,7 +24,6 @@ public sealed class Bridge : IBridge, IAsyncDisposable
 
     bool _isInitialized = false;
     int _listenerCount = 0;
-    int _internetConnectionIntervalinSeconds = 5;
     CancellationTokenSource _cts = new();
 
     private readonly DotNetObjectReference<Bridge> _dotNetObjectReference;
@@ -46,12 +45,11 @@ public sealed class Bridge : IBridge, IAsyncDisposable
 
     }
 
-    public async Task InitializeAsync(ListenerType listenerType = ListenerType.None, int? internetConnectionIntervalinSeconds = null)
+    public async Task InitializeAsync(ListenerType listenerType = ListenerType.None)
     {
         if (_isInitialized) return;
 
         ListenerType = listenerType;
-        _internetConnectionIntervalinSeconds = internetConnectionIntervalinSeconds ?? 5;
 
         var module = await moduleTask.Value ?? throw new MauiBlazorBridgeException("Failed to import the MauiBlazorHybrid.js");
 
@@ -65,8 +63,6 @@ public sealed class Bridge : IBridge, IAsyncDisposable
 
         if (listenerType is ListenerType.Global)
             await InitializeListenerAsync(module);
-
-        await InitializeNetworkListenerAsync(module);
     }
 
 
@@ -96,27 +92,6 @@ public sealed class Bridge : IBridge, IAsyncDisposable
         _listenerCount++;
     }
 
-    public async Task InitializeNetworkListenerAsync(IJSObjectReference? jsObject = null)
-    {
-        if (!_isInitialized)
-            throw new MauiBlazorBridgeException("Bridge is not initialized. Make sure to add BridgeProvider Component");
-
-#if ANDROID || IOS || WINDOWS || MACCATALYST
-        Connectivity.ConnectivityChanged += NetworkConnectivityChanged;
-#else
-
-        var module = jsObject ?? await moduleTask.Value ?? throw new MauiBlazorBridgeException("Failed to import the MauiBlazorHybrid.js");
-        await module.InvokeVoidAsync("registerNetworkListener", _dotNetObjectReference, _internetConnectionIntervalinSeconds);
-#endif
-    }
-
-#if ANDROID || IOS || WINDOWS || MACCATALYST
-    private void NetworkConnectivityChanged(object? sender, ConnectivityChangedEventArgs e)
-    {
-        InternetConnection = e.NetworkAccess == NetworkAccess.Internet;
-        InternetConnectionChanged?.Invoke(this, InternetConnection);
-    }
-#endif
 
     [JSInvokable]
     public ValueTask OnIdiomChangedCallback(string idiomString)
@@ -133,14 +108,6 @@ public sealed class Bridge : IBridge, IAsyncDisposable
         }
         return ValueTask.CompletedTask;
     }
-
-    [JSInvokable]
-    public void NotifyNetworkStatusChanged(bool onlineStatus)
-    {
-        InternetConnectionChanged?.Invoke(this, onlineStatus);
-        InternetConnection = onlineStatus;
-    }
-
     public async ValueTask DisposeAsync()
     {
         if (moduleTask.IsValueCreated)
@@ -198,19 +165,6 @@ public sealed class Bridge : IBridge, IAsyncDisposable
         {
             Console.WriteLine("DisposeListener Task was cancelled");
         }
-    }
-
-    public async ValueTask DisposeNetworkListenerAsync()
-    {
-#if ANDROID || IOS || WINDOWS || MACCATALYST
-        Connectivity.ConnectivityChanged -= NetworkConnectivityChanged;
-#else
-        if (moduleTask.IsValueCreated)
-        {
-            var module = await moduleTask.Value;
-            await module.InvokeVoidAsync("disposeNetworkListener");
-        }
-#endif
     }
 
     private void OnNewListener()

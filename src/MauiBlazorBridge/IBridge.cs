@@ -19,11 +19,6 @@ public interface IBridge
     string PlatformVersion { get; }
 
     /// <summary>
-    /// This is Used for Determining Whether the Device is Connected to the Internet or Not
-    /// </summary>
-    bool InternetConnection { get; }
-
-    /// <summary>
     /// This is Used for Determining the Form Factor of the Device, Whether it is Desktop, Tablet, or Mobile
     /// </summary>
     DeviceFormFactor DeviceFormFactor {  get; }
@@ -38,17 +33,12 @@ public interface IBridge
     EventHandler<PlatformIdentity>? PlatformChanged { get; set; }
 
     /// <summary>
-    /// This is Used for Determining Whether the Device is Connected to the Internet or Not
-    /// </summary>
-    event EventHandler<bool>? InternetConnectionChanged;
-
-    /// <summary>
     /// This is Used for Initializing the Bridge and used Internally on BridgeProvider
     /// </summary>
     /// <param name="listenerType">
     /// Determines Whether the Bridge Should Listen to Changes in Globally, Suppressed or None
     /// </param>
-    Task InitializeAsync(ListenerType listenerType = ListenerType.None, int? internetConnectionInterval = null);
+    Task InitializeAsync(ListenerType listenerType = ListenerType.None);
 
     /// <summary>
     /// This is Used for Initializing the Listener and Used Internally by the BridgeContext
@@ -60,11 +50,6 @@ public interface IBridge
     /// This is Used for Disposing the Listener and Used Internally by the BridgeContext
     /// </summary>
     ValueTask DisposeListener();
-
-    /// <summary>
-    /// This is Used for Disposing the Network Listener
-    /// </summary>
-    ValueTask DisposeNetworkListenerAsync();
 
     /// <summary>
     /// This is used Identity Whether Listener is Attached to the Bridge Globally, Suppressed

@@ -10,14 +10,11 @@
     [Parameter]
     public ListenerType ListenerType { get; set; } = ListenerType.None;
 
-    [Parameter]
-    public int InternetConnectionIntervalInSeconds { get; set; } = 5;
-
     protected async override Task OnAfterRenderAsync(bool firstRender)
     {
         if(firstRender)
         {
-            await Bridge.InitializeAsync(ListenerType, InternetConnectionIntervalInSeconds);
+            await Bridge.InitializeAsync(ListenerType);
         }
     }
 
