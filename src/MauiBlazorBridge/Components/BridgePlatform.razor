@@ -1,4 +1,5 @@
-﻿@inject IBridge Bridge
+﻿@namespace MauiBlazorBridge
+@inject IBridge Bridge
 @implements IDisposable
 
 @if(Bridge.Platform is PlatformIdentity.Android && Android is not null)

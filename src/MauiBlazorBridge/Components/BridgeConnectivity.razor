@@ -1,4 +1,5 @@
-﻿@inject IBridge Bridge
+﻿@namespace MauiBlazorBridge
+@inject IBridgeConnectivity BridgeConnection
 @implements IDisposable
 
 @if (isOnline)
@@ -27,7 +28,7 @@ else
 
     protected override void OnInitialized()
     {
-        isOnline = Bridge.InternetConnection;
+        isOnline = BridgeConnection.IsInternetConnected;
         base.OnInitialized();
     }
 
@@ -35,7 +36,7 @@ else
     {
         if (firstRender)
         {
-            Bridge.InternetConnectionChanged += Bridge_OnInternetConnectionChanged;
+            BridgeConnection.InternetConnectionChanged += Bridge_OnInternetConnectionChanged;
         }
         base.OnAfterRender(firstRender);
     }
@@ -51,7 +52,7 @@ else
 
     public void Dispose()
     {
-        Bridge.InternetConnectionChanged -= Bridge_OnInternetConnectionChanged;
+        BridgeConnection.InternetConnectionChanged -= Bridge_OnInternetConnectionChanged;
     }
 
 }
