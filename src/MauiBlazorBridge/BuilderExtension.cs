@@ -1,4 +1,5 @@
 ﻿
+using MauiBlazorBridge.Services;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace MauiBlazorBridge;
@@ -9,15 +10,17 @@ public static class BuilderExtension
     /// </summary>
     public static IServiceCollection AddMauiBlazorBridge(this IServiceCollection services)
     {
-        services.AddScoped<IBridge, Bridge>();
 
 #if ANDROID || IOS || WINDOWS || MACCATALYST
-
+        services.AddScoped<IBridge, Services.Bridge>();
         services.AddScoped<IBridgeConnectivity, Services.BridgeConnectivity>();
+        services.AddScoped<IBridgeFormFactor, Services.BridgeFormFactor>();
 
 #else
 
+        services.AddScoped<IBridge, Services.BridgeWeb>();
         services.AddScoped<IBridgeConnectivity, Services.BridgeConnectivityWeb>();
+        services.AddScoped<IBridgeFormFactor, Services.BridgeFormFactorWeb>();
 
 #endif
 
