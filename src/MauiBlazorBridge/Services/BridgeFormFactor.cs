@@ -34,11 +34,11 @@ internal sealed class BridgeFormFactor : IBridgeFormFactor
 
     private static DeviceFormFactor GetFormFactor()
     {
-        if (Application.Current is null || Application.Current.MainPage is null) 
+        if (Application.Current is null || Application.Current.Windows.Count is 0) 
             return DeviceFormFactor.UnknownState();
 
-        var width = Application.Current.MainPage.Window.Width;
-        var height = Application.Current.MainPage.Window.Height;
+        var width = Application.Current.Windows[0].Width;
+        var height = Application.Current.Windows[0].Height;
 
         if (DeviceInfo.Idiom == DeviceIdiom.Phone)
             return new DeviceFormFactor(FormFactor.Mobile, width, height);
@@ -67,8 +67,8 @@ internal sealed class BridgeFormFactor : IBridgeFormFactor
 
         MainThread.BeginInvokeOnMainThread(() =>
         {
-            if (Application.Current is null || Application.Current.MainPage is null) return;
-            Application.Current.MainPage.Window.SizeChanged += WindowSizeChanged;
+            if (Application.Current is null || Application.Current.Windows.Count is 0) return;
+            Application.Current.Windows[0].SizeChanged += WindowSizeChanged;
         });
 
         _listenerCount++;
@@ -78,10 +78,10 @@ internal sealed class BridgeFormFactor : IBridgeFormFactor
 
     private void WindowSizeChanged(object? sender, EventArgs e)
     {
-        if (Application.Current is null || Application.Current.MainPage is null) return;
+        if (Application.Current is null || Application.Current.Windows.Count is 0) return;
 
-        var width = Application.Current.MainPage.Window.Width;
-        var height = Application.Current.MainPage.Window.Height;
+        var width = Application.Current.Windows[0].Width;
+        var height = Application.Current.Windows[0].Height;
 
         DeviceFormFactor newFormFactor;
 
@@ -119,8 +119,8 @@ internal sealed class BridgeFormFactor : IBridgeFormFactor
 
                 MainThread.BeginInvokeOnMainThread(() =>
                 {
-                    if (Application.Current is null || Application.Current.MainPage is null) return;
-                    Application.Current.MainPage.Window.SizeChanged -= WindowSizeChanged;
+                    if (Application.Current is null || Application.Current.Windows.Count is 0) return;
+                    Application.Current.Windows[0].SizeChanged -= WindowSizeChanged;
                 });
 
                 _listenerCount = 0;
