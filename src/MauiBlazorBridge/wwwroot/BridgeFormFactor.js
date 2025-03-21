@@ -33,7 +33,11 @@ export function getFormFactor() {
 
 export function initialize(dotnetObject) {
     if (!window.resizeListener) {
-        console.log("created new listeners");
+
+        if (window.location.hostname === 'localhost') {
+            console.log('created new listeners...', new Date().toLocaleTimeString());
+        }
+        
         window.currentFormFactor = getFormFactor();
 
         window.resizeListener = async () => {
@@ -49,7 +53,10 @@ export function initialize(dotnetObject) {
 
 export function dispose() {
     if (window.resizeListener) {
-        console.log("disposed all the listeners");
+        if (window.location.hostname === 'localhost') {
+            console.log('disposed all the listeners...', new Date().toLocaleTimeString());
+        }
+
         window.removeEventListener('resize', window.resizeListener);
         window.resizeListener = null;
     }
