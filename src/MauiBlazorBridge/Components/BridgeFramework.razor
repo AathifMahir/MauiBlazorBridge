@@ -1,0 +1,20 @@
+﻿@namespace MauiBlazorBridge
+@inject IBridge Bridge
+
+@if(Bridge.Framework == Framework.Maui)
+{
+    @Maui
+}
+else
+{
+    @Blazor
+}
+
+@code {
+
+    [Parameter]
+    public RenderFragment Maui { get; set; } = default!;
+
+    [Parameter]
+    public RenderFragment Blazor { get; set; } = default!;
+}

@@ -1,0 +1,135 @@
+﻿@namespace MauiBlazorBridge
+@inject IBridgeFormFactor Form
+@implements IAsyncDisposable
+
+@if (idiom.FormFactor is FormFactor.Mobile)
+{
+    @if (Mobile is not null)
+    {
+        @Mobile
+    }
+    else if (TabletAndMobile is not null)
+    {
+        @TabletAndMobile
+    }
+    else if (DesktopAndMobile is not null)
+    {
+        @DesktopAndMobile
+    }
+    else
+    {
+        @Default
+    }
+}
+else if (idiom.FormFactor is FormFactor.Tablet)
+{
+    @if (Tablet is not null)
+    {
+        @Tablet
+    }
+    else if (TabletAndMobile is not null)
+    {
+        @TabletAndMobile
+    }
+    else if (DesktopAndTablet is not null)
+    {
+        @DesktopAndTablet
+    }
+    else
+    {
+        @Default
+    }
+}
+else if (idiom.FormFactor is FormFactor.Desktop)
+{
+    @if (Desktop is not null)
+    {
+        @Desktop
+    }
+    else if (DesktopAndTablet is not null)
+    {
+        @DesktopAndTablet
+    }
+    else if (DesktopAndMobile is not null)
+    {
+        @DesktopAndMobile
+    }
+    else
+    {
+        @Default
+    }
+}
+else
+{
+    @Default
+}
+
+
+@code {
+    [Parameter]
+    public RenderFragment? Desktop { get; set; }
+
+    [Parameter]
+    public RenderFragment? Tablet { get; set; }
+
+    [Parameter]
+    public RenderFragment? Mobile { get; set; }
+
+    [Parameter]
+    public RenderFragment? Default { get; set; }
+
+    [Parameter]
+    public RenderFragment? DesktopAndTablet { get; set; }
+
+    [Parameter]
+    public RenderFragment? DesktopAndMobile { get; set; }
+
+    [Parameter]
+    public RenderFragment? TabletAndMobile { get; set; }
+
+    [Parameter]
+    public EventCallback<DeviceFormFactor> FormFactorChanged { get; set; }
+
+    /// <summary>
+    /// This parameter is used to avoid creating or attaching existing listener to this instance of BridgeFormFactor. Therefore this would use FormFactor Value of the Bridge at the time of initialization.
+    /// </summary>
+
+    [Parameter]
+    public bool ListenOnceDuringInitialization { get; set; } = false;
+
+
+    private BridgeFormFactorContext? _bridgeContext;
+
+    private DeviceFormFactor idiom = DeviceFormFactor.UnknownState();
+
+    protected override void OnInitialized()
+    {
+        idiom = Form.DeviceFormFactor;
+        base.OnInitialized();
+    }
+
+    protected async override Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            if (!ListenOnceDuringInitialization)
+            {
+                _bridgeContext = await BridgeFormFactorContext.CreateAsync(Form, async (f) =>
+                    {
+                        idiom = f;
+                        await FormFactorChanged.InvokeAsync(f);
+                        StateHasChanged();
+                    });
+            }
+        }
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (_bridgeContext is not null)
+        {
+            await _bridgeContext.DisposeAsync();
+        }
+    }
+
+}
