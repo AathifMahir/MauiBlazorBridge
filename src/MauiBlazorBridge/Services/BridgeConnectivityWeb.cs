@@ -34,7 +34,7 @@ public sealed class BridgeConnectivityWeb : IBridgeConnectivity, IAsyncDisposabl
     {
         if (_isInitialized) return;
 
-        var module = await _moduleTask.Value;
+        var module = await _moduleTask.Value ?? throw new MauiBlazorBridgeException("Failed to import the BridgeConnectivity.js");
 
         IsInternetConnected = await module.InvokeAsync<bool>("getNetworkStatus");
 
