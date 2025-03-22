@@ -26,16 +26,13 @@ else
     [Parameter]
     public EventCallback<bool> InternetChanged { get; set; }
 
-    protected override void OnInitialized()
-    {
-        isOnline = BridgeConnection.IsInternetConnected;
-        base.OnInitialized();
-    }
 
     protected override void OnAfterRender(bool firstRender)
     {
         if (firstRender)
         {
+            isOnline = BridgeConnection.IsInternetConnected;
+            InternetChanged.InvokeAsync(isOnline);
             BridgeConnection.InternetConnectionChanged += Bridge_OnInternetConnectionChanged;
         }
         base.OnAfterRender(firstRender);

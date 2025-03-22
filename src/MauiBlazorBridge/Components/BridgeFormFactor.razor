@@ -102,16 +102,14 @@ else
 
     private DeviceFormFactor idiom = DeviceFormFactor.UnknownState();
 
-    protected override void OnInitialized()
-    {
-        idiom = Form.DeviceFormFactor;
-        base.OnInitialized();
-    }
 
     protected async override Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
+            idiom = Form.DeviceFormFactor;
+            await FormFactorChanged.InvokeAsync(idiom);
+
             if (!ListenOnceDuringInitialization)
             {
                 _bridgeContext = await BridgeFormFactorContext.CreateAsync(Form, async (f) =>
