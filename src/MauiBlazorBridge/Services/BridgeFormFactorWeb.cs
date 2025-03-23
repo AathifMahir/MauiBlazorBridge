@@ -3,7 +3,7 @@ using Microsoft.JSInterop;
 using System.Text.Json;
 
 namespace MauiBlazorBridge.Services;
-public sealed class BridgeFormFactorWeb : IBridgeFormFactor
+public sealed class BridgeFormFactorWeb : IBridgeFormFactor, IAsyncDisposable
 {
     readonly Lazy<Task<IJSObjectReference>> _moduleTask;
 
@@ -45,6 +45,7 @@ public sealed class BridgeFormFactorWeb : IBridgeFormFactor
         var module = await _moduleTask.Value ?? throw new MauiBlazorBridgeException("Failed to import the BridgeFormFactor.js");
 
         DeviceFormFactor = await GetFormFactorAsync(module);
+        FormFactorChanged?.Invoke(this, DeviceFormFactor);
 
         _isInitialized = true;
 
@@ -54,9 +55,6 @@ public sealed class BridgeFormFactorWeb : IBridgeFormFactor
 
     public async Task CreateAsync()
     {
-        if (!_isInitialized)
-            throw new MauiBlazorBridgeException("Bridge is not initialized. Make sure to add BridgeFormFactorProvider Component");
-
         if (_listeningMode is ChangeListeningMode.Suppressed) return;
 
         OnNewListener();
@@ -71,6 +69,8 @@ public sealed class BridgeFormFactorWeb : IBridgeFormFactor
         await module.InvokeVoidAsync("initialize", _dotNetObjectReference);
 
         _listenerCount++;
+
+        FormFactorChanged?.Invoke(this, DeviceFormFactor);
     }
 
     [JSInvokable]
