@@ -43,6 +43,10 @@ export function disposeListener() {
 
 async function fetchNetworkStatus(abortSignal = null) {
     try {
+        if (window.navigator.onLine === false) {
+            return false;
+        }
+
         if (abortSignal) {
             await fetch(testUrl, { method: 'HEAD', mode: 'no-cors', signal: abortSignal });
         }
