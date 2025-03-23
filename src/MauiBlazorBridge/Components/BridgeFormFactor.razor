@@ -88,7 +88,10 @@ else
     public RenderFragment? TabletAndMobile { get; set; }
 
     [Parameter]
-    public EventCallback<DeviceFormFactor> FormFactorChanged { get; set; }
+    public DeviceFormFactor DeviceFormFactor { get; set; } = DeviceFormFactor.UnknownState();
+
+    [Parameter]
+    public EventCallback<DeviceFormFactor> DeviceFormFactorChanged { get; set; }
 
     /// <summary>
     /// This parameter is used to avoid creating or attaching existing listener to this instance of BridgeFormFactor. Therefore this would use FormFactor Value of the Bridge at the time of initialization.
@@ -108,14 +111,16 @@ else
         if (firstRender)
         {
             idiom = Form.DeviceFormFactor;
-            await FormFactorChanged.InvokeAsync(idiom);
+            DeviceFormFactor = idiom;
+            await DeviceFormFactorChanged.InvokeAsync(idiom);
 
             if (!ListenOnceDuringInitialization)
             {
                 _bridgeContext = await BridgeFormFactorContext.CreateAsync(Form, async (f) =>
                     {
                         idiom = f;
-                        await FormFactorChanged.InvokeAsync(f);
+                        DeviceFormFactor = idiom;
+                        await DeviceFormFactorChanged.InvokeAsync(f);
                         StateHasChanged();
                     });
             }

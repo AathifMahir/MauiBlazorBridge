@@ -40,10 +40,14 @@ else
     public RenderFragment? Default { get; set; }
 
 
-    protected override void OnInitialized()
+    protected override void OnAfterRender(bool firstRender)
     {
-        Bridge.PlatformChanged += PlatformChanged;
-        base.OnInitialized();
+        if (firstRender)
+        {
+            Bridge.PlatformChanged += PlatformChanged;
+        }
+
+        base.OnAfterRender(firstRender);
     }
 
     private void PlatformChanged(object? sender, PlatformIdentity e) => StateHasChanged();

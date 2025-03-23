@@ -21,10 +21,13 @@ else
     [Parameter]
     public RenderFragment? Offline { get; set; }
 
-    bool isOnline = false;
+    [Parameter]
+    public bool InternetConnection { get; set; }
 
     [Parameter]
-    public EventCallback<bool> InternetChanged { get; set; }
+    public EventCallback<bool> InternetConnectionChanged { get; set; }
+
+    bool isOnline = false;
 
 
     protected override void OnAfterRender(bool firstRender)
@@ -32,7 +35,7 @@ else
         if (firstRender)
         {
             isOnline = BridgeConnection.IsInternetConnected;
-            InternetChanged.InvokeAsync(isOnline);
+            InternetConnectionChanged.InvokeAsync(isOnline);
             BridgeConnection.InternetConnectionChanged += Bridge_OnInternetConnectionChanged;
         }
         base.OnAfterRender(firstRender);
@@ -43,7 +46,7 @@ else
         if (isOnline == e) return;
 
         isOnline = e;
-        InternetChanged.InvokeAsync(e);
+        InternetConnectionChanged.InvokeAsync(e);
         StateHasChanged();
     }
 
