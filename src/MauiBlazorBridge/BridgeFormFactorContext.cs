@@ -26,9 +26,10 @@ public sealed class BridgeFormFactorContext : IAsyncDisposable
     public async static Task<BridgeFormFactorContext> CreateAsync(IBridgeFormFactor bridge, Action<DeviceFormFactor> onIdiomChangedCallback)
     {
         var bridgeContext = new BridgeFormFactorContext(bridge);
+        bridgeContext.OnChanged += onIdiomChangedCallback;
+        
         await bridge.CreateAsync();
 
-        bridgeContext.OnChanged += onIdiomChangedCallback;
         return bridgeContext;
     }
 
