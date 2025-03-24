@@ -1,4 +1,8 @@
-﻿﻿v1.0.0-preview7
+﻿v1.0.0-preview12
+• Added Connectivity API
+• Various Enhancements and Bug Fixes
+
+﻿v1.0.0-preview7
 • New BridgeFrameworkHandlers Constructs
 • Minor Fixes and Improvements
 ﻿
