@@ -25,7 +25,7 @@
 
 	<ItemGroup Condition="'$(TargetFramework)' == 'net9.0'">
 		<SupportedPlatform Include="browser" />
-		<PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="9.0.3" />
+		<PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="9.0.2" />
 	</ItemGroup>
 
 	<PropertyGroup>
@@ -48,7 +48,7 @@
 		<Product>$(AssemblyName) ($(TargetFramework))</Product>
 		<AssemblyVersion>1.0.0.0</AssemblyVersion>
 		<AssemblyFileVersion>1.0.0.0</AssemblyFileVersion>
-		<Version>1.0.0-preview11</Version>
+		<Version>1.0.0-preview12</Version>
 		<PackageVersion>$(Version)$(VersionSuffix)</PackageVersion>
 		<PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
 		<PackageTags>Maui,blazor,maui blazor hybrid,maui hybrid,blazor hybrid,platform,formfactor</PackageTags>
