@@ -1,16 +1,13 @@
 ﻿
 namespace MauiBlazorBridge;
-public sealed class BridgeContext : IAsyncDisposable
+public sealed class BridgeFormFactorContext : IAsyncDisposable
 {
-    private readonly IBridge _bridge;
+    private readonly IBridgeFormFactor _bridge;
     public event Action<DeviceFormFactor>? OnChanged;
 
-    private readonly ListenerType _listenerType;
-
-    private BridgeContext(IBridge bridge)
+    private BridgeFormFactorContext(IBridgeFormFactor bridge)
     {
         _bridge = bridge;
-        _listenerType = bridge.ListenerType;
         _bridge.FormFactorChanged += Bridge_IdiomChanged;
     }
 
@@ -26,15 +23,13 @@ public sealed class BridgeContext : IAsyncDisposable
     /// <param name="onIdiomChangedCallback">Delegate for Notifying the UI</param>
     /// <returns></returns>
 
-    public async static Task<BridgeContext> CreateAsync(IBridge bridge, Action<DeviceFormFactor> onIdiomChangedCallback)
+    public async static Task<BridgeFormFactorContext> CreateAsync(IBridgeFormFactor bridge, Action<DeviceFormFactor> onIdiomChangedCallback)
     {
-        var bridgeContext = new BridgeContext(bridge);
-
-        if (bridgeContext._listenerType is ListenerType.None)
-            await bridge.InitializeListenerAsync();
-
+        var bridgeContext = new BridgeFormFactorContext(bridge);
         bridgeContext.OnChanged += onIdiomChangedCallback;
-        bridge.FormFactorChanged?.Invoke(bridge, bridge.DeviceFormFactor);
+        
+        await bridge.CreateAsync();
+
         return bridgeContext;
     }
 
@@ -44,8 +39,7 @@ public sealed class BridgeContext : IAsyncDisposable
     /// </summary>
     public async ValueTask DisposeAsync()
     {
-        if (_listenerType is ListenerType.None)
-            await _bridge.DisposeListener();
+        await _bridge.DisposeFormFactor();
 
         _bridge.FormFactorChanged -= Bridge_IdiomChanged;
     }

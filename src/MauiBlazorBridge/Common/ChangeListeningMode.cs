@@ -1,5 +1,5 @@
 ﻿namespace MauiBlazorBridge;
-public enum ListenerType
+public enum ChangeListeningMode
 {
     /// <summary>
     /// Set Listener to None, Therefore No Listener will be attached to the Bridge at Initialization and that Components Needs to Listen to Changes Can Attach Their Own Listener

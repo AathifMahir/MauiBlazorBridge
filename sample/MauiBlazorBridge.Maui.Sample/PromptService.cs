@@ -1,7 +1,7 @@
 ﻿using Microsoft.JSInterop;
 
 namespace MauiBlazorBridge.Maui.Sample;
-public sealed class PromptService : BridgeFrameworkHandlerAsync
+public sealed class PromptService : BridgeFrameworkHandler<Task>
 {
     private readonly IJSRuntime _jsRuntime;
     private readonly Lazy<Task<IJSObjectReference>> _moduleTask;
@@ -11,18 +11,18 @@ public sealed class PromptService : BridgeFrameworkHandlerAsync
         _moduleTask = new(_jsRuntime.InvokeAsync<IJSObjectReference>("./hello.js").AsTask());
     }
 
-    protected async override Task HandleBlazorAsync()
+    protected async override Task HandleBlazor()
     {
         var module = await _moduleTask.Value;
         await module.InvokeVoidAsync("prompt", "Hello from Blazor");
     }
 
-    protected override Task HandleMauiAsync()
+    protected override Task HandleMaui()
     {
         MainThread.BeginInvokeOnMainThread(async () =>
         {
-            if (Application.Current is null || Application.Current.MainPage is null) return;
-            await Application.Current.MainPage.DisplayAlert("Hello from Maui", "Hello from Maui", "OK");
+            if (Application.Current is null || Application.Current.Windows.Count is 0 || Application.Current.Windows[0].Page is null) return;
+            await Application.Current.Windows[0].Page?.DisplayAlert("Hello from Maui", "Hello from Maui", "OK");
         });
         return Task.CompletedTask;
     }
