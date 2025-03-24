@@ -38,6 +38,7 @@ else
             isOnline = BridgeConnection.IsInternetConnected;
             InternetConnectionChanged.InvokeAsync(isOnline);
             BridgeConnection.InternetConnectionChanged += Bridge_OnInternetConnectionChanged;
+            StateHasChanged();
         }
         base.OnAfterRender(firstRender);
     }
