@@ -1,36 +1,38 @@
 ﻿@page "/bridge"
 @inject IBridge Bridge
 
-<BridgeFormFactor FormFactorChanged="FormFactorChanged">
-    <Mobile>
-        <h3>FormFactor : Mobile</h3>
-    </Mobile>
-    <Tablet>
-        <h3>FormFactor : Tablet</h3>
-    </Tablet>
-    <Desktop>
+<BridgeFormFactor @bind-DeviceFormFactor="FormFactor"> 
+    <Mobile> 
+        <h3>FormFactor : Mobile</h3> 
+    </Mobile> 
+    <Tablet> 
+        <h3>FormFactor : Tablet</h3> 
+    </Tablet> 
+    <Desktop> 
         <h3>FormFactor : Desktop</h3>
-    </Desktop>
-    <Default>
-        <h3>FormFactor : Unknown</h3>
+    </Desktop> 
+    <Default> 
+        <h3>FormFactor : Unknown</h3> 
     </Default>
-</BridgeFormFactor>
+</BridgeFormFactor> 
 
 <h3>Platform : @Bridge.Platform</h3>
 <h3>Platform Version : @Bridge.PlatformVersion</h3>
 <h3>FrameWork : @Bridge.Framework</h3>
 
-<BridgeConnectivity InternetChanged="InternetChanged">
-    <Online>
-        <h3>Internet : Online</h3>
-    </Online>
-    <Offline>
-        <h3>Internet : Offline</h3>
-    </Offline>
-</BridgeConnectivity>
+<BridgeConnectivity @bind-InternetConnection="isOnline"> 
+    <Online> 
+        <h3>Internet : Online</h3> 
+    </Online> 
+    <Offline> 
+        <h3>Internet : Offline</h3> 
+    </Offline> 
+</BridgeConnectivity> 
 
-<h3>Internet From Binding : @(isOnline ? "Online" : "Offline")</h3>
-<h3>Form Factor From Binding : @FormFactor.FormFactor</h3>
+<h3>Internet From Binding : @(isOnline ? "Online" : "Offline")</h3> 
+<h3>Form Factor From Binding : @FormFactor.FormFactor</h3> 
+
+<button @onclick="ChangeOnlineStatus">Change Online Status</button> 
 
 @code {
 
@@ -38,14 +40,9 @@
 
     DeviceFormFactor FormFactor = DeviceFormFactor.UnknownState();
 
-    void InternetChanged(bool isOnline)
+    void ChangeOnlineStatus()
     {
-        this.isOnline = isOnline;
+        isOnline = !isOnline;
+        FormFactor = DeviceFormFactor.UnknownState();
     }
-
-    void FormFactorChanged(DeviceFormFactor formFactor)
-    {
-        FormFactor = formFactor;
-    }
-
 }

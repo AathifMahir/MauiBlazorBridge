@@ -3,10 +3,10 @@
 @inject IBridge Bridge
 
 <BridgeProvider/>
-<BridgeConnectivity />
-<BridgeFormFactor />
+<BridgeConnectivityProvider />
+<BridgeFormFactorProvider />
 
-<BridgeFormFactor>
+<BridgeFormFactor @bind-DeviceFormFactor="FormFactor">
     <Mobile>
         <h3>FormFactor : Mobile</h3>
     </Mobile>
@@ -42,7 +42,7 @@
 <h3>Platform Version : @Bridge.PlatformVersion</h3>
 <h3>FrameWork : @Bridge.Framework</h3>
 
-<BridgeConnectivity InternetChanged="InternetChanged">
+<BridgeConnectivity @bind-InternetConnection="isOnline">
     <Online>
         <h3>Internet : Online</h3>
     </Online>
@@ -59,15 +59,4 @@
     bool isOnline = false;
 
     DeviceFormFactor FormFactor = DeviceFormFactor.UnknownState();
-
-    void InternetChanged(bool isOnline)
-    {
-        this.isOnline = isOnline;
-    }
-
-    void FormFactorChanged(DeviceFormFactor formFactor)
-    {
-        FormFactor = formFactor;
-    }
-
 }
