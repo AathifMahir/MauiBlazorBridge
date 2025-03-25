@@ -2,6 +2,9 @@
 @inject IBridge Bridge
 @implements IDisposable
 
+
+@ChildContent?.Invoke(Bridge.Platform)
+
 @if(Bridge.Platform is PlatformIdentity.Android && Android is not null)
 {
     @Android
@@ -18,10 +21,6 @@ else if (Bridge.Platform is PlatformIdentity.Mac && Windows is not null)
 {
     @Mac
 }
-else
-{
-    @Default
-}
 
 @code {
     [Parameter]
@@ -37,7 +36,7 @@ else
     public RenderFragment? Mac { get; set; }
 
     [Parameter]
-    public RenderFragment? Default { get; set; }
+    public RenderFragment<PlatformIdentity>? ChildContent { get; set; }
 
 
     protected override void OnAfterRender(bool firstRender)

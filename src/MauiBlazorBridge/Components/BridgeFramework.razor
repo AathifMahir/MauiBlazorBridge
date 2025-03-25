@@ -1,6 +1,8 @@
 ﻿@namespace MauiBlazorBridge
 @inject IBridge Bridge
 
+@ChildContent?.Invoke(Bridge.Framework)
+
 @if(Bridge.Framework == Framework.Maui)
 {
     @Maui
@@ -17,4 +19,7 @@ else
 
     [Parameter]
     public RenderFragment Blazor { get; set; } = default!;
+
+    [Parameter]
+    public RenderFragment<Framework>? ChildContent { get; set; }
 }

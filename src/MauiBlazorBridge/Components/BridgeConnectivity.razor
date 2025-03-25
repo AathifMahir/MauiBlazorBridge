@@ -2,6 +2,8 @@
 @inject IBridgeConnectivity BridgeConnection
 @implements IDisposable
 
+@ChildContent?.Invoke(InternetConnection)
+
 @if (isOnline)
 {
     @Online
@@ -20,6 +22,9 @@ else
 
     [Parameter]
     public RenderFragment? Offline { get; set; }
+
+    [Parameter]
+    public RenderFragment<bool>? ChildContent { get; set; }
 
     [Parameter]
     public bool InternetConnection { get; set; }

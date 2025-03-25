@@ -2,6 +2,8 @@
 @inject IBridgeFormFactor Form
 @implements IAsyncDisposable
 
+@ChildContent?.Invoke(DeviceFormFactor)
+
 @if (idiom.FormFactor is FormFactor.Mobile)
 {
     @if (Mobile is not null)
@@ -86,6 +88,9 @@ else
 
     [Parameter]
     public RenderFragment? TabletAndMobile { get; set; }
+
+    [Parameter]
+    public RenderFragment<DeviceFormFactor>? ChildContent { get; set; }
 
     [Parameter]
     public DeviceFormFactor DeviceFormFactor { get; set; } = DeviceFormFactor.UnknownState();
