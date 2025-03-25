@@ -2,7 +2,7 @@
 @inject IBridgeFormFactor Form
 @implements IAsyncDisposable
 
-@ChildContent?.Invoke(DeviceFormFactor)
+@ChildContent?.Invoke(idiom)
 
 @if (idiom.FormFactor is FormFactor.Mobile)
 {

@@ -2,7 +2,7 @@
 @inject IBridgeConnectivity BridgeConnection
 @implements IDisposable
 
-@ChildContent?.Invoke(InternetConnection)
+@ChildContent?.Invoke(isOnline)
 
 @if (isOnline)
 {
