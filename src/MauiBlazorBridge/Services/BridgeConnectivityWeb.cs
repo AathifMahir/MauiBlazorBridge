@@ -28,7 +28,7 @@ public sealed class BridgeConnectivityWeb : IBridgeConnectivity, IAsyncDisposabl
     }
 
 
-    public bool IsInternetConnected { get; private set; } = false;
+    public bool IsInternetConnected { get; private set; } = true;
 
     public async Task InitializeAsync(int internetConnectionInvervalInSeconds = 10)
     {

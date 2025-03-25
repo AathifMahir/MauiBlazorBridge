@@ -9,7 +9,7 @@ internal sealed class BridgeConnectivity : IBridgeConnectivity
         IsInternetConnected = Connectivity.NetworkAccess == NetworkAccess.Internet;
     }
 
-    public bool IsInternetConnected { get; private set; } = false;
+    public bool IsInternetConnected { get; private set; } = true;
 
     public event EventHandler<bool>? InternetConnectionChanged;
 
