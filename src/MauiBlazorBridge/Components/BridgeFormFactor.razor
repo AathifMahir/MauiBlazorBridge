@@ -1,6 +1,8 @@
 ﻿@namespace MauiBlazorBridge
-@inject IBridge Bridge
+@inject IBridgeFormFactor Form
 @implements IAsyncDisposable
+
+@ChildContent?.Invoke(idiom)
 
 @if (idiom.FormFactor is FormFactor.Mobile)
 {
@@ -88,7 +90,13 @@ else
     public RenderFragment? TabletAndMobile { get; set; }
 
     [Parameter]
-    public EventCallback<DeviceFormFactor> FormFactorChanged { get; set; }
+    public RenderFragment<DeviceFormFactor>? ChildContent { get; set; }
+
+    [Parameter]
+    public DeviceFormFactor DeviceFormFactor { get; set; } = DeviceFormFactor.UnknownState();
+
+    [Parameter]
+    public EventCallback<DeviceFormFactor> DeviceFormFactorChanged { get; set; }
 
     /// <summary>
     /// This parameter is used to avoid creating or attaching existing listener to this instance of BridgeFormFactor. Therefore this would use FormFactor Value of the Bridge at the time of initialization.
@@ -98,26 +106,27 @@ else
     public bool ListenOnceDuringInitialization { get; set; } = false;
 
 
-    private BridgeContext? _bridgeContext;
+    private BridgeFormFactorContext? _bridgeContext;
 
     private DeviceFormFactor idiom = DeviceFormFactor.UnknownState();
 
-    protected override void OnInitialized()
-    {
-        idiom = Bridge.DeviceFormFactor;
-        base.OnInitialized();
-    }
 
     protected async override Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
+            idiom = Form.DeviceFormFactor;
+            DeviceFormFactor = idiom;
+            await DeviceFormFactorChanged.InvokeAsync(idiom);
+            StateHasChanged();
+
             if (!ListenOnceDuringInitialization)
             {
-                _bridgeContext = await BridgeContext.CreateAsync(Bridge, async (f) =>
+                _bridgeContext = await BridgeFormFactorContext.CreateAsync(Form, async (f) =>
                     {
                         idiom = f;
-                        await FormFactorChanged.InvokeAsync(f);
+                        DeviceFormFactor = idiom;
+                        await DeviceFormFactorChanged.InvokeAsync(f);
                         StateHasChanged();
                     });
             }

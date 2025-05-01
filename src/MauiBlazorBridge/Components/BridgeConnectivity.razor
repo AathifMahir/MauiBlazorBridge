@@ -1,0 +1,65 @@
+﻿@namespace MauiBlazorBridge
+@inject IBridgeConnectivity BridgeConnection
+@implements IDisposable
+
+@ChildContent?.Invoke(isOnline)
+
+@if (isOnline)
+{
+    @Online
+}
+else
+{
+    @Offline
+}
+
+
+
+@code {
+
+    [Parameter]
+    public RenderFragment? Online { get; set; }
+
+    [Parameter]
+    public RenderFragment? Offline { get; set; }
+
+    [Parameter]
+    public RenderFragment<bool>? ChildContent { get; set; }
+
+    [Parameter]
+    public bool InternetConnection { get; set; }
+
+    [Parameter]
+    public EventCallback<bool> InternetConnectionChanged { get; set; }
+
+    bool isOnline = true;
+
+
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender)
+        {
+            isOnline = BridgeConnection.IsInternetConnected;
+            InternetConnectionChanged.InvokeAsync(isOnline);
+            BridgeConnection.InternetConnectionChanged += Bridge_OnInternetConnectionChanged;
+            StateHasChanged();
+        }
+        base.OnAfterRender(firstRender);
+    }
+
+    private void Bridge_OnInternetConnectionChanged(object? sender, bool e)
+    {
+        if (isOnline == e) return;
+
+        isOnline = e;
+        InternetConnectionChanged.InvokeAsync(e);
+        StateHasChanged();
+    }
+
+    public void Dispose()
+    {
+        BridgeConnection.InternetConnectionChanged -= Bridge_OnInternetConnectionChanged;
+    }
+
+}

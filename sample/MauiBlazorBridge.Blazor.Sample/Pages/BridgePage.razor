@@ -1,30 +1,46 @@
 ﻿@page "/bridge"
 @inject IBridge Bridge
 
-<BridgeFormFactor>
-    <Mobile>
-        <h3>FormFactor : Mobile</h3>
-    </Mobile>
-    <Tablet>
-        <h3>FormFactor : Tablet</h3>
-    </Tablet>
-    <Desktop>
+<BridgeFormFactor @bind-DeviceFormFactor="FormFactor" Context="currentFormFactor"> 
+    <ChildContent>
+        <h3>FormFactor from Context : @currentFormFactor.FormFactor</h3>
+    </ChildContent>
+    <Mobile> 
+        <h3>FormFactor : Mobile</h3> 
+    </Mobile> 
+    <Tablet> 
+        <h3>FormFactor : Tablet</h3> 
+    </Tablet> 
+    <Desktop> 
         <h3>FormFactor : Desktop</h3>
-    </Desktop>
-    <Default>
-        <h3>FormFactor : Unknown</h3>
+    </Desktop> 
+    <Default> 
+        <h3>FormFactor : Unknown</h3> 
     </Default>
-</BridgeFormFactor>
+</BridgeFormFactor> 
 
 <h3>Platform : @Bridge.Platform</h3>
 <h3>Platform Version : @Bridge.PlatformVersion</h3>
 <h3>FrameWork : @Bridge.Framework</h3>
 
-<BridgeInternet>
-    <Online>
-        <h3>Internet : Online</h3>
-    </Online>
-    <Offline>
-        <h3>Internet : Offline</h3>
-    </Offline>
-</BridgeInternet>
+<BridgeConnectivity @bind-InternetConnection="isOnline" Context="isInternetAvailable"> 
+    <ChildContent>
+        <h3> Internet From Context : @(isInternetAvailable ? "Online" : "Offline")</h3>
+    </ChildContent>
+    <Online> 
+        <h3>Internet : Online</h3> 
+    </Online> 
+    <Offline> 
+        <h3>Internet : Offline</h3> 
+    </Offline> 
+</BridgeConnectivity> 
+
+<h3>Internet From Binding : @(isOnline ? "Online" : "Offline")</h3> 
+<h3>Form Factor From Binding : @FormFactor.FormFactor</h3> 
+
+@code {
+
+    bool isOnline = false;
+
+    DeviceFormFactor FormFactor = DeviceFormFactor.UnknownState();
+}
